@@ -1,0 +1,2228 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🌌 Emulation's Proxy - Professional Web Gateway</title>
+  <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGNpcmNsZSBjeD0iMzIiIGN5PSIzMiIgcj0iMTUiIGZpbGw9IiMxYTFhMjkiLz48cGF0aCBkPSJNMTUgMzJBMTcgMTcgMCAwIDEgMzIgMTVBMjAgMjAgMCAwIDEgNDkgMzJBMTcgMTcgMCAwIDEgMzIgNDlBMjAgMjAgMCAwIDEgMTUgMzJaIiBmaWxsPSJub25lIiBzdHJva2U9IiM2MzY2ZjEiIHN0cm9rZS13aWR0aD0iMyIvPjwvc3ZnPg==">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.2/ace.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.2/mode-javascript.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.2/mode-html.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.2/mode-css.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.2/mode-python.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.2/theme-monokai.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.2/theme-dracula.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.2/theme-github.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.2/theme-solarized_dark.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Mono:wght@400;700&family=Rajdhani:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #6366f1;
+      --secondary-color: #8b5cf6;
+      --accent-color: #f59e0b;
+      --success-color: #10b981;
+      --danger-color: #ef4444;
+      --warning-color: #f97316;
+      --info-color: #06b6d4;
+      --dark-bg: #0a0a0f;
+      --card-bg: #1a1a29;
+      --border-color: #2d2d44;
+      --text-primary: #ffffff;
+      --text-secondary: #a1a1aa;
+      --tab-active: #6366f1;
+      --tab-inactive: #4b5563;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      background: linear-gradient(135deg, #0a0a0f 0%, #1a1a29 50%, #0f0f1a 100%);
+      background-attachment: fixed;
+      color: var(--text-primary);
+      margin: 0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .orbitron { font-family: 'Orbitron', monospace; }
+    .space-mono { font-family: 'Space Mono', monospace; }
+
+    /* Particle background */
+    #particles-js {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+    }
+
+    /* Glass morphism */
+    .glass-card {
+      background: rgba(26, 26, 41, 0.85);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(99, 102, 241, 0.2);
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+      transition: all 0.3s ease;
+    }
+
+    .glass-card:hover {
+      border-color: rgba(99, 102, 241, 0.4);
+      box-shadow: 0 12px 40px rgba(99, 102, 241, 0.15);
+    }
+
+    /* Tab System */
+    .tab-container {
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .tab-button {
+      padding: 12px 24px;
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      transition: all 0.3s ease;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .tab-button:hover {
+      color: var(--text-primary);
+      background: rgba(99, 102, 241, 0.1);
+    }
+
+    .tab-button.active {
+      color: var(--primary-color);
+      border-bottom-color: var(--primary-color);
+      background: rgba(99, 102, 241, 0.1);
+    }
+
+    .tab-content {
+      display: none;
+      padding: 24px;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Buttons */
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      border: none;
+      color: white;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      border-radius: 8px;
+      padding: 10px 20px;
+      cursor: pointer;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+    }
+
+    .btn-secondary {
+      background: rgba(26, 26, 41, 0.8);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      transition: all 0.3s ease;
+      border-radius: 8px;
+      padding: 8px 16px;
+      cursor: pointer;
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--primary-color);
+      background: rgba(99, 102, 241, 0.1);
+    }
+
+    .btn-success {
+      background: var(--success-color);
+      border: none;
+      color: white;
+      border-radius: 8px;
+      padding: 8px 16px;
+      cursor: pointer;
+    }
+
+    .btn-danger {
+      background: var(--danger-color);
+      border: none;
+      color: white;
+      border-radius: 8px;
+      padding: 8px 16px;
+      cursor: pointer;
+    }
+
+    /* Input styles */
+    .input-field {
+      background: rgba(26, 26, 41, 0.8);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      transition: all 0.3s ease;
+      border-radius: 8px;
+      padding: 12px;
+    }
+
+    .input-field:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+      outline: none;
+    }
+
+    /* Terminal styles */
+    .terminal {
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      font-family: 'Space Mono', monospace;
+      color: #c9d1d9;
+      height: 400px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .terminal-header {
+      background: #21262d;
+      padding: 8px 16px;
+      border-bottom: 1px solid #30363d;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .terminal-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+
+    .terminal-output {
+      padding: 16px;
+      flex: 1;
+      overflow-y: auto;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    .terminal-input-line {
+      display: flex;
+      align-items: center;
+      padding: 12px 16px;
+      border-top: 1px solid #30363d;
+      flex-shrink: 0;
+    }
+
+    .terminal-prompt {
+      color: #58a6ff;
+      margin-right: 8px;
+      white-space: nowrap;
+    }
+
+    .terminal-input {
+      background: transparent;
+      border: none;
+      color: #c9d1d9;
+      font-family: inherit;
+      font-size: inherit;
+      flex: 1;
+      outline: none;
+    }
+
+    /* Code editor */
+    .code-editor-container {
+      display: flex;
+      flex-direction: column;
+      height: 500px;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+    }
+
+    .editor-toolbar {
+      background: rgba(26, 26, 41, 0.9);
+      border-bottom: 1px solid var(--border-color);
+      padding: 8px 16px;
+      display: flex;
+      justify-content: between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .code-output {
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      padding: 16px;
+      font-family: 'Space Mono', monospace;
+      color: #c9d1d9;
+      min-height: 200px;
+      overflow-y: auto;
+      margin-top: 16px;
+    }
+
+    /* Status indicators */
+    .status-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .status-online {
+      background: rgba(16, 185, 129, 0.2);
+      color: var(--success-color);
+    }
+
+    .status-offline {
+      background: rgba(239, 68, 68, 0.2);
+      color: var(--danger-color);
+    }
+
+    .status-warning {
+      background: rgba(249, 115, 22, 0.2);
+      color: var(--warning-color);
+    }
+
+    /* AI Chat */
+    .ai-chat {
+      height: 500px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px 8px 0 0;
+    }
+
+    .chat-message {
+      margin-bottom: 16px;
+      padding: 12px;
+      border-radius: 8px;
+    }
+
+    .chat-message.user {
+      background: rgba(99, 102, 241, 0.2);
+      margin-left: 20%;
+    }
+
+    .chat-message.ai {
+      background: rgba(26, 26, 41, 0.8);
+      margin-right: 20%;
+    }
+
+    .chat-input-container {
+      display: flex;
+      gap: 8px;
+      border: 1px solid var(--border-color);
+      border-top: none;
+      border-radius: 0 0 8px 8px;
+      padding: 16px;
+      background: rgba(26, 26, 41, 0.5);
+    }
+
+    /* Proxy frame */
+    .proxy-frame-container {
+      background: #000;
+      border-radius: 8px;
+      overflow: hidden;
+      height: 600px;
+      border: 1px solid var(--border-color);
+    }
+
+    .proxy-toolbar {
+      background: rgba(26, 26, 41, 0.9);
+      padding: 8px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--dark-bg);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--border-color);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--primary-color);
+    }
+
+    /* Loading animation */
+    .loading {
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .tab-button {
+        padding: 8px 12px;
+        font-size: 14px;
+      }
+      
+      .tab-content {
+        padding: 16px;
+      }
+      
+      .terminal {
+        height: 300px;
+      }
+      
+      .code-editor-container {
+        height: 400px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Particle Background -->
+  <div id="particles-js"></div>
+
+  <!-- Main Container -->
+  <div class="min-h-screen">
+    <!-- Header -->
+    <header class="glass-card m-4 p-4">
+      <div class="flex justify-between items-center">
+        <div class="flex items-center space-x-4">
+          <h1 class="text-2xl md:text-3xl font-bold orbitron">
+            <i class="fas fa-satellite-dish mr-2 text-blue-400"></i>
+            <span class="text-blue-400">EMULATION'S</span> <span class="text-purple-400">PROXY</span>
+          </h1>
+          <div class="status-indicator status-online">
+            <i class="fas fa-circle text-xs"></i>
+            ONLINE
+          </div>
+        </div>
+        <div class="flex items-center space-x-3">
+          <div class="status-indicator status-online">
+            <i class="fas fa-shield-alt"></i>
+            SECURED
+          </div>
+          <div class="status-indicator status-online">
+            <i class="fas fa-bolt"></i>
+            ACTIVE
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="mx-4 mb-4">
+      <div class="glass-card">
+        <!-- Tab Navigation -->
+        <div class="tab-container">
+          <div class="flex overflow-x-auto">
+            <button class="tab-button active" data-tab="proxy">
+              <i class="fas fa-globe"></i>
+              Proxy
+            </button>
+            <button class="tab-button" data-tab="code">
+              <i class="fas fa-code"></i>
+              Code Editor
+            </button>
+            <button class="tab-button" data-tab="terminal">
+              <i class="fas fa-terminal"></i>
+              Terminal
+            </button>
+            <button class="tab-button" data-tab="ai">
+              <i class="fas fa-robot"></i>
+              AI Assistant
+            </button>
+            <button class="tab-button" data-tab="settings">
+              <i class="fas fa-cog"></i>
+              Settings
+            </button>
+            <button class="tab-button" data-tab="help">
+              <i class="fas fa-question-circle"></i>
+              Help/About
+            </button>
+          </div>
+        </div>
+
+        <!-- Tab Contents -->
+        
+        <!-- Proxy Tab -->
+        <div class="tab-content active" id="proxy-tab">
+          <div class="space-y-6">
+            <div class="flex items-center justify-between">
+              <h2 class="text-2xl font-bold orbitron">
+                <i class="fas fa-globe mr-3 text-blue-400"></i>
+                INTERSTELLAR WEB GATEWAY
+              </h2>
+              <div class="flex space-x-4">
+                <div class="status-indicator status-online">
+                  <i class="fas fa-shield-alt"></i>
+                  SSL ENABLED
+                </div>
+                <div class="status-indicator status-online">
+                  <i class="fas fa-eye-slash"></i>
+                  ANONYMOUS
+                </div>
+              </div>
+            </div>
+
+            <!-- Proxy Controls -->
+            <div class="grid md:grid-cols-4 gap-4">
+              <div class="md:col-span-2">
+                <label class="block text-sm font-semibold mb-2 text-gray-300">TARGET URL</label>
+                <div class="flex space-x-3">
+                  <input 
+                    id="proxyUrl" 
+                    type="text" 
+                    placeholder="Enter URL (e.g., https://google.com)"
+                    class="input-field flex-1"
+                    value=""
+                  >
+                  <button id="proxyGo" class="btn-primary">
+                    <i class="fas fa-rocket mr-2"></i>LAUNCH
+                  </button>
+                </div>
+              </div>
+              <div>
+                <label class="block text-sm font-semibold mb-2 text-gray-300">SERVER</label>
+                <select id="serverLocation" class="input-field w-full">
+                  <option value="auto">🤖 Auto Select</option>
+                  <option value="us-east">🇺🇸 US East</option>
+                  <option value="us-west">🇺🇸 US West</option>
+                  <option value="europe">🇪🇺 Europe</option>
+                  <option value="asia">🇯🇵 Asia Pacific</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-semibold mb-2 text-gray-300">ACTIONS</label>
+                <div class="flex space-x-2">
+                  <button id="refreshProxy" class="btn-secondary">
+                    <i class="fas fa-sync"></i>
+                  </button>
+                  <button id="fullscreenProxy" class="btn-secondary">
+                    <i class="fas fa-expand"></i>
+                  </button>
+                  <button id="newTabProxy" class="btn-secondary">
+                    <i class="fas fa-external-link-alt"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Quick Access -->
+            <div class="grid grid-cols-2 md:grid-cols-6 gap-3">
+              <button class="quick-link btn-secondary p-3 text-center" data-url="https://google.com">
+                <i class="fab fa-google text-blue-400 mb-1"></i>
+                <div class="text-xs">Google</div>
+              </button>
+              <button class="quick-link btn-secondary p-3 text-center" data-url="https://youtube.com">
+                <i class="fab fa-youtube text-red-400 mb-1"></i>
+                <div class="text-xs">YouTube</div>
+              </button>
+              <button class="quick-link btn-secondary p-3 text-center" data-url="https://github.com">
+                <i class="fab fa-github mb-1"></i>
+                <div class="text-xs">GitHub</div>
+              </button>
+              <button class="quick-link btn-secondary p-3 text-center" data-url="https://stackoverflow.com">
+                <i class="fab fa-stack-overflow text-orange-400 mb-1"></i>
+                <div class="text-xs">Stack Overflow</div>
+              </button>
+              <button class="quick-link btn-secondary p-3 text-center" data-url="https://discord.com">
+                <i class="fab fa-discord text-purple-400 mb-1"></i>
+                <div class="text-xs">Discord</div>
+              </button>
+              <button class="quick-link btn-secondary p-3 text-center" data-url="https://reddit.com">
+                <i class="fab fa-reddit text-orange-500 mb-1"></i>
+                <div class="text-xs">Reddit</div>
+              </button>
+            </div>
+
+            <!-- Proxy Display -->
+            <div class="proxy-frame-container">
+              <div class="proxy-toolbar">
+                <div class="flex items-center space-x-3 flex-1">
+                  <div class="flex space-x-1">
+                    <div class="terminal-dot bg-red-500"></div>
+                    <div class="terminal-dot bg-yellow-500"></div>
+                    <div class="terminal-dot bg-green-500"></div>
+                  </div>
+                  <div class="input-field flex-1 text-sm" id="addressBar">about:blank</div>
+                  <div class="text-sm text-gray-400" id="loadingStatus">Ready</div>
+                </div>
+              </div>
+              <iframe 
+                id="proxyFrame" 
+                class="w-full h-full border-0"
+                sandbox="allow-same-origin allow-scripts allow-forms allow-downloads allow-popups"
+                src="about:blank"
+              ></iframe>
+            </div>
+          </div>
+        </div>
+
+        <!-- Code Editor Tab -->
+        <div class="tab-content" id="code-tab">
+          <div class="space-y-6">
+            <div class="flex items-center justify-between">
+              <h2 class="text-2xl font-bold orbitron">
+                <i class="fas fa-code mr-3 text-green-400"></i>
+                CODE EDITOR
+              </h2>
+              <div class="flex space-x-3">
+                <select id="editorLanguage" class="btn-secondary">
+                  <option value="javascript">JavaScript</option>
+                  <option value="html">HTML</option>
+                  <option value="css">CSS</option>
+                  <option value="python">Python</option>
+                  <option value="json">JSON</option>
+                </select>
+                <select id="editorTheme" class="btn-secondary">
+                  <option value="dracula">Dracula</option>
+                  <option value="monokai">Monokai</option>
+                  <option value="github">GitHub</option>
+                  <option value="solarized_dark">Solarized Dark</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="code-editor-container">
+              <div class="editor-toolbar">
+                <div class="flex space-x-3">
+                  <button id="runCode" class="btn-success">
+                    <i class="fas fa-play mr-2"></i>Run Code
+                  </button>
+                  <button id="clearCode" class="btn-secondary">
+                    <i class="fas fa-trash mr-2"></i>Clear
+                  </button>
+                  <button id="saveCode" class="btn-secondary">
+                    <i class="fas fa-save mr-2"></i>Save
+                  </button>
+                  <button id="loadCode" class="btn-secondary">
+                    <i class="fas fa-folder-open mr-2"></i>Load
+                  </button>
+                </div>
+                <div class="flex space-x-4 text-sm text-gray-400">
+                  <span id="editorPosition">Line 1, Column 1</span>
+                  <span id="editorStatus">Ready</span>
+                </div>
+              </div>
+              <div id="codeEditor" class="flex-1"></div>
+            </div>
+
+            <div>
+              <div class="flex items-center justify-between mb-3">
+                <h3 class="text-lg font-bold">Output</h3>
+                <button id="clearOutput" class="btn-secondary btn-sm">
+                  <i class="fas fa-eraser mr-1"></i>Clear Output
+                </button>
+              </div>
+              <div id="codeOutput" class="code-output">
+                <div class="text-green-400">Ready to execute code...</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Terminal Tab -->
+        <div class="tab-content" id="terminal-tab">
+          <div class="space-y-6">
+            <div class="flex items-center justify-between">
+              <h2 class="text-2xl font-bold orbitron">
+                <i class="fas fa-terminal mr-3 text-yellow-400"></i>
+                TERMINAL
+              </h2>
+              <div class="flex space-x-3">
+                <button id="clearTerminal" class="btn-secondary">
+                  <i class="fas fa-eraser mr-2"></i>Clear
+                </button>
+                <button id="killAllProcesses" class="btn-danger">
+                  <i class="fas fa-stop mr-2"></i>Kill All
+                </button>
+                <div class="status-indicator status-online">
+                  <i class="fas fa-microchip"></i>
+                  <span id="processCount">0 processes</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="terminal">
+              <div class="terminal-header">
+                <div class="terminal-dot bg-red-500"></div>
+                <div class="terminal-dot bg-yellow-500"></div>
+                <div class="terminal-dot bg-green-500"></div>
+                <span class="text-sm text-gray-400 ml-4">emulation@proxy:~</span>
+                <div class="flex-1"></div>
+                <span class="text-xs text-gray-500" id="terminalTime"></span>
+              </div>
+              <div id="terminalOutput" class="terminal-output">
+                <div class="text-blue-400">🌌 Emulation's Proxy Terminal v2.0</div>
+                <div class="text-gray-400">Enhanced shell with extended command support</div>
+                <div class="text-gray-400">Type 'help' for available commands</div>
+                <br>
+              </div>
+              <div class="terminal-input-line">
+                <span class="terminal-prompt">emulation@proxy:~$</span>
+                <input 
+                  id="terminalInput" 
+                  type="text" 
+                  class="terminal-input" 
+                  autocomplete="off"
+                  spellcheck="false"
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- AI Assistant Tab -->
+        <div class="tab-content" id="ai-tab">
+          <div class="space-y-6">
+            <div class="flex items-center justify-between">
+              <h2 class="text-2xl font-bold orbitron">
+                <i class="fas fa-robot mr-3 text-purple-400"></i>
+                AI ASSISTANT
+              </h2>
+              <div class="flex space-x-3">
+                <div class="status-indicator status-online">
+                  <i class="fas fa-brain"></i>
+                  GPT-4 Active
+                </div>
+                <button id="clearChat" class="btn-secondary">
+                  <i class="fas fa-trash mr-2"></i>Clear Chat
+                </button>
+              </div>
+            </div>
+
+            <div class="ai-chat">
+              <div id="chatMessages" class="chat-messages">
+                <div class="chat-message ai">
+                  <div class="font-semibold text-purple-400 mb-2">🤖 AI Assistant</div>
+                  <div>Hello! I'm your AI assistant. I can help you with:</div>
+                  <ul class="list-disc list-inside mt-2 text-gray-300">
+                    <li>Code debugging and optimization</li>
+                    <li>Web development questions</li>
+                    <li>Proxy configuration and troubleshooting</li>
+                    <li>General programming assistance</li>
+                    <li>System administration tasks</li>
+                  </ul>
+                  <div class="mt-2">What would you like help with today?</div>
+                </div>
+              </div>
+              <div class="chat-input-container">
+                <input 
+                  id="chatInput" 
+                  type="text" 
+                  placeholder="Ask me anything about coding, proxy setup, or tech support..."
+                  class="input-field flex-1"
+                >
+                <button id="sendChat" class="btn-primary">
+                  <i class="fas fa-paper-plane"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Settings Tab -->
+        <div class="tab-content" id="settings-tab">
+          <div class="space-y-6">
+            <h2 class="text-2xl font-bold orbitron">
+              <i class="fas fa-cog mr-3 text-gray-400"></i>
+              SETTINGS
+            </h2>
+
+            <div class="grid md:grid-cols-2 gap-8">
+              <!-- Proxy Settings -->
+              <div class="space-y-4">
+                <h3 class="text-xl font-bold text-blue-400">Proxy Configuration</h3>
+                <div class="space-y-3">
+                  <label class="flex items-center space-x-3">
+                    <input type="checkbox" id="sslEnabled" checked class="form-checkbox text-blue-500">
+                    <span>🔒 Enable SSL/TLS encryption</span>
+                  </label>
+                  <label class="flex items-center space-x-3">
+                    <input type="checkbox" id="adBlockEnabled" checked class="form-checkbox text-blue-500">
+                    <span>🚫 Block advertisements</span>
+                  </label>
+                  <label class="flex items-center space-x-3">
+                    <input type="checkbox" id="stealthMode" class="form-checkbox text-blue-500">
+                    <span>🎭 Stealth mode (advanced anonymity)</span>
+                  </label>
+                  <label class="flex items-center space-x-3">
+                    <input type="checkbox" id="cacheEnabled" checked class="form-checkbox text-blue-500">
+                    <span>💾 Enable content caching</span>
+                  </label>
+                  <label class="flex items-center space-x-3">
+                    <input type="checkbox" id="compressionEnabled" checked class="form-checkbox text-blue-500">
+                    <span>📦 Enable data compression</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Interface Settings -->
+              <div class="space-y-4">
+                <h3 class="text-xl font-bold text-green-400">Interface Preferences</h3>
+                <div class="space-y-3">
+                  <div>
+                    <label class="block text-sm font-semibold mb-2">Theme</label>
+                    <select id="themeSelect" class="input-field w-full">
+                      <option value="dark">🌙 Dark (Interstellar)</option>
+                      <option value="light">☀️ Light</option>
+                      <option value="auto">🤖 Auto (System)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-semibold mb-2">Font Size</label>
+                    <select id="fontSizeSelect" class="input-field w-full">
+                      <option value="small">Small</option>
+                      <option value="medium" selected>Medium</option>
+                      <option value="large">Large</option>
+                      <option value="xlarge">Extra Large</option>
+                    </select>
+                  </div>
+                  <label class="flex items-center space-x-3">
+                    <input type="checkbox" id="particlesEnabled" checked class="form-checkbox text-blue-500">
+                    <span>✨ Enable particle effects</span>
+                  </label>
+                  <label class="flex items-center space-x-3">
+                    <input type="checkbox" id="soundEnabled" class="form-checkbox text-blue-500">
+                    <span>🔊 Enable sound effects</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Security Settings -->
+              <div class="space-y-4">
+                <h3 class="text-xl font-bold text-yellow-400">Security & Privacy</h3>
+                <div class="space-y-3">
+                  <label class="flex items-center space-x-3">
+                    <input type="checkbox" id="clearHistoryOnExit" class="form-checkbox text-blue-500">
+                    <span>🗑️ Clear history on exit</span>
+                  </label>
+                  <label class="flex items-center space-x-3">
+                    <input type="checkbox" id="blockTrackers" checked class="form-checkbox text-blue-500">
+                    <span>🛡️ Block tracking scripts</span>
+                  </label>
+                  <label class="flex items-center space-x-3">
+                    <input type="checkbox" id="disableWebRTC" class="form-checkbox text-blue-500">
+                    <span>📡 Disable WebRTC (prevents IP leaks)</span>
+                  </label>
+                  <div>
+                    <label class="block text-sm font-semibold mb-2">User Agent</label>
+                    <select id="userAgentSelect" class="input-field w-full">
+                      <option value="default">Default (Chrome)</option>
+                      <option value="firefox">Firefox</option>
+                      <option value="safari">Safari</option>
+                      <option value="edge">Edge</option>
+                      <option value="custom">Custom</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Performance Settings -->
+              <div class="space-y-4">
+                <h3 class="text-xl font-bold text-purple-400">Performance</h3>
+                <div class="space-y-3">
+                  <div>
+                    <label class="block text-sm font-semibold mb-2">Connection Timeout (seconds)</label>
+                    <input type="number" id="timeoutSetting" value="30" min="5" max="120" class="input-field w-full">
+                  </div>
+                  <div>
+                    <label class="block text-sm font-semibold mb-2">Max Concurrent Connections</label>
+                    <input type="number" id="maxConnections" value="10" min="1" max="50" class="input-field w-full">
+                  </div>
+                  <label class="flex items-center space-x-3">
+                    <input type="checkbox" id="preloadEnabled" class="form-checkbox text-blue-500">
+                    <span>⚡ Enable link preloading</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex space-x-4 pt-6 border-t border-gray-600">
+              <button id="saveSettings" class="btn-primary">
+                <i class="fas fa-save mr-2"></i>Save Settings
+              </button>
+              <button id="resetSettings" class="btn-secondary">
+                <i class="fas fa-undo mr-2"></i>Reset to Defaults
+              </button>
+              <button id="exportSettings" class="btn-secondary">
+                <i class="fas fa-download mr-2"></i>Export Config
+              </button>
+              <button id="importSettings" class="btn-secondary">
+                <i class="fas fa-upload mr-2"></i>Import Config
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Help/About Tab -->
+        <div class="tab-content" id="help-tab">
+          <div class="space-y-6">
+            <h2 class="text-2xl font-bold orbitron">
+              <i class="fas fa-question-circle mr-3 text-info-color"></i>
+              HELP & ABOUT
+            </h2>
+
+            <div class="grid md:grid-cols-2 gap-8">
+              <!-- Quick Help -->
+              <div class="space-y-4">
+                <h3 class="text-xl font-bold text-blue-400">Quick Start Guide</h3>
+                <div class="space-y-3 text-gray-300">
+                  <div class="p-4 bg-gray-800 rounded-lg">
+                    <h4 class="font-bold text-white mb-2">🌐 Using the Proxy</h4>
+                    <p>Enter any URL in the proxy tab and click "Launch" to browse anonymously through our secure gateway.</p>
+                  </div>
+                  <div class="p-4 bg-gray-800 rounded-lg">
+                    <h4 class="font-bold text-white mb-2">💻 Code Editor</h4>
+                    <p>Write and execute code in multiple languages. The output panel shows results in real-time.</p>
+                  </div>
+                  <div class="p-4 bg-gray-800 rounded-lg">
+                    <h4 class="font-bold text-white mb-2">⚡ Terminal</h4>
+                    <p>Use the built-in terminal for system commands, file operations, and development tasks.</p>
+                  </div>
+                  <div class="p-4 bg-gray-800 rounded-lg">
+                    <h4 class="font-bold text-white mb-2">🤖 AI Assistant</h4>
+                    <p>Get help with coding, debugging, and technical questions from our advanced AI.</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Keyboard Shortcuts -->
+              <div class="space-y-4">
+                <h3 class="text-xl font-bold text-green-400">Keyboard Shortcuts</h3>
+                <div class="space-y-2 text-gray-300">
+                  <div class="flex justify-between">
+                    <span>Switch Tabs</span>
+                    <code class="bg-gray-800 px-2 py-1 rounded">Ctrl + 1-6</code>
+                  </div>
+                  <div class="flex justify-between">
+                    <span>Run Code</span>
+                    <code class="bg-gray-800 px-2 py-1 rounded">Ctrl + Enter</code>
+                  </div>
+                  <div class="flex justify-between">
+                    <span>Clear Terminal</span>
+                    <code class="bg-gray-800 px-2 py-1 rounded">Ctrl + L</code>
+                  </div>
+                  <div class="flex justify-between">
+                    <span>Focus Proxy URL</span>
+                    <code class="bg-gray-800 px-2 py-1 rounded">Ctrl + K</code>
+                  </div>
+                  <div class="flex justify-between">
+                    <span>Toggle Fullscreen</span>
+                    <code class="bg-gray-800 px-2 py-1 rounded">F11</code>
+                  </div>
+                  <div class="flex justify-between">
+                    <span>Save Code</span>
+                    <code class="bg-gray-800 px-2 py-1 rounded">Ctrl + S</code>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Features -->
+              <div class="space-y-4">
+                <h3 class="text-xl font-bold text-yellow-400">Features</h3>
+                <div class="grid grid-cols-2 gap-3">
+                  <div class="p-3 bg-gray-800 rounded-lg text-center">
+                    <i class="fas fa-shield-alt text-green-400 text-2xl mb-2"></i>
+                    <div class="text-sm">SSL Encryption</div>
+                  </div>
+                  <div class="p-3 bg-gray-800 rounded-lg text-center">
+                    <i class="fas fa-eye-slash text-blue-400 text-2xl mb-2"></i>
+                    <div class="text-sm">Anonymous Browsing</div>
+                  </div>
+                  <div class="p-3 bg-gray-800 rounded-lg text-center">
+                    <i class="fas fa-code text-purple-400 text-2xl mb-2"></i>
+                    <div class="text-sm">Code Execution</div>
+                  </div>
+                  <div class="p-3 bg-gray-800 rounded-lg text-center">
+                    <i class="fas fa-terminal text-yellow-400 text-2xl mb-2"></i>
+                    <div class="text-sm">Full Terminal</div>
+                  </div>
+                  <div class="p-3 bg-gray-800 rounded-lg text-center">
+                    <i class="fas fa-robot text-red-400 text-2xl mb-2"></i>
+                    <div class="text-sm">AI Assistant</div>
+                  </div>
+                  <div class="p-3 bg-gray-800 rounded-lg text-center">
+                    <i class="fas fa-mobile-alt text-orange-400 text-2xl mb-2"></i>
+                    <div class="text-sm">Mobile Responsive</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- About -->
+              <div class="space-y-4">
+                <h3 class="text-xl font-bold text-purple-400">About</h3>
+                <div class="space-y-3 text-gray-300">
+                  <div class="p-4 bg-gray-800 rounded-lg">
+                    <h4 class="font-bold text-white mb-2">🌌 Emulation's Proxy v2.0</h4>
+                    <p>A professional-grade web proxy with integrated development tools, built for the modern internet.</p>
+                  </div>
+                  <div class="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <span class="font-semibold">Version:</span> 2.0.0
+                    </div>
+                    <div>
+                      <span class="font-semibold">Build:</span> 2024.12
+                    </div>
+                    <div>
+                      <span class="font-semibold">Engine:</span> Quantum Core
+                    </div>
+                    <div>
+                      <span class="font-semibold">License:</span> MIT
+                    </div>
+                  </div>
+                  <div class="pt-4 border-t border-gray-600">
+                    <p class="text-sm text-gray-400">
+                      Built with cutting-edge web technologies including Ace Editor, Particles.js, and advanced CSS3 animations.
+                      Designed for developers, by developers.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- System Status Bar -->
+    <div class="mx-4 mb-4">
+      <div class="glass-card p-4">
+        <div class="grid grid-cols-2 md:grid-cols-6 gap-4 text-center">
+          <div>
+            <div class="text-xl font-bold text-blue-400 orbitron" id="uptime">99.9%</div>
+            <div class="text-xs text-gray-400">Uptime</div>
+          </div>
+          <div>
+            <div class="text-xl font-bold text-green-400 orbitron" id="connections">1,247</div>
+            <div class="text-xs text-gray-400">Connections</div>
+          </div>
+          <div>
+            <div class="text-xl font-bold text-yellow-400 orbitron" id="bandwidth">45.2 MB/s</div>
+            <div class="text-xs text-gray-400">Bandwidth</div>
+          </div>
+          <div>
+            <div class="text-xl font-bold text-purple-400 orbitron" id="requests">2.1M</div>
+            <div class="text-xs text-gray-400">Requests</div>
+          </div>
+          <div>
+            <div class="text-xl font-bold text-orange-400 orbitron" id="latency">12ms</div>
+            <div class="text-xs text-gray-400">Latency</div>
+          </div>
+          <div>
+            <div class="text-xl font-bold text-red-400 orbitron" id="errors">0.1%</div>
+            <div class="text-xs text-gray-400">Error Rate</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Initialize everything
+    console.log('🚀 Initializing Emulation\'s Proxy Professional v2.0...');
+
+    // Initialize Particles
+    particlesJS('particles-js', {
+      particles: {
+        number: { value: 80, density: { enable: true, value_area: 800 } },
+        color: { value: ['#6366f1', '#8b5cf6', '#a855f7', '#06b6d4'] },
+        shape: { type: 'circle' },
+        opacity: { value: 0.4, random: true },
+        size: { value: 3, random: true },
+        line_linked: {
+          enable: true,
+          distance: 150,
+          color: '#6366f1',
+          opacity: 0.3,
+          width: 1
+        },
+        move: {
+          enable: true,
+          speed: 1.5,
+          direction: 'none',
+          random: false,
+          straight: false,
+          out_mode: 'out'
+        }
+      },
+      interactivity: {
+        detect_on: 'canvas',
+        events: {
+          onhover: { enable: true, mode: 'repulse' },
+          onclick: { enable: true, mode: 'push' }
+        }
+      }
+    });
+
+    // Tab System
+    class TabManager {
+      constructor() {
+        this.activeTab = 'proxy';
+        this.initializeTabs();
+        this.setupKeyboardShortcuts();
+      }
+
+      initializeTabs() {
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabButtons.forEach(button => {
+          button.addEventListener('click', () => {
+            const tabId = button.getAttribute('data-tab');
+            this.switchTab(tabId);
+          });
+        });
+      }
+
+      switchTab(tabId) {
+        // Remove active class from all tabs and contents
+        document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+        // Add active class to selected tab and content
+        document.querySelector(`[data-tab="${tabId}"]`).classList.add('active');
+        document.getElementById(`${tabId}-tab`).classList.add('active');
+
+        this.activeTab = tabId;
+
+        // Initialize specific tab features
+        if (tabId === 'code' && typeof editor !== 'undefined') {
+          setTimeout(() => editor.resize(), 100);
+        }
+      }
+
+      setupKeyboardShortcuts() {
+        document.addEventListener('keydown', (e) => {
+          if (e.ctrlKey) {
+            const tabMap = {
+              '1': 'proxy',
+              '2': 'code', 
+              '3': 'terminal',
+              '4': 'ai',
+              '5': 'settings',
+              '6': 'help'
+            };
+
+            if (tabMap[e.key]) {
+              e.preventDefault();
+              this.switchTab(tabMap[e.key]);
+            }
+          }
+        });
+      }
+    }
+
+    // Initialize Code Editor
+    let editor;
+    if (typeof ace !== 'undefined') {
+      editor = ace.edit("codeEditor");
+      editor.setTheme("ace/theme/dracula");
+      editor.session.setMode("ace/mode/javascript");
+      editor.setOptions({
+        fontSize: "14px",
+        showPrintMargin: false,
+        wrap: true,
+        enableBasicAutocompletion: true,
+        enableLiveAutocompletion: true
+      });
+
+      // Set initial code
+      editor.setValue(`// 🌌 Emulation's Proxy - Advanced Code Editor
+console.log("Welcome to the Professional Code Environment!");
+
+// Example: Enhanced proxy request with error handling
+class ProxyManager {
+    constructor(baseUrl) {
+        this.baseUrl = baseUrl;
+        this.requestCount = 0;
+    }
+
+    async makeRequest(url, options = {}) {
+        this.requestCount++;
+        console.log(\`Request #\${this.requestCount}: \${url}\`);
+
+        try {
+            const response = await fetch(url, {
+                ...options,
+                headers: {
+                    'X-Proxy-By': 'EmulationsProxy',
+                    'X-Request-ID': Date.now().toString(),
+                    ...options.headers
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(\`HTTP \${response.status}: \${response.statusText}\`);
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error('Proxy request failed:', error);
+            throw error;
+        }
+    }
+
+    getStats() {
+        return {
+            totalRequests: this.requestCount,
+            uptime: '99.9%',
+            status: 'online'
+        };
+    }
+}
+
+// Test the proxy manager
+const proxy = new ProxyManager('https://api.example.com');
+console.log('Proxy Stats:', proxy.getStats());
+
+// You can run any JavaScript code here!
+// Try console.log("Hello from the code editor!");`, -1);
+
+      // Update position display
+      editor.selection.on('changeCursor', function() {
+        const pos = editor.getCursorPosition();
+        document.getElementById('editorPosition').textContent = 
+          `Line ${pos.row + 1}, Column ${pos.column + 1}`;
+      });
+
+      // Language change handler
+      document.getElementById('editorLanguage').addEventListener('change', (e) => {
+        const modeMap = {
+          javascript: 'ace/mode/javascript',
+          html: 'ace/mode/html',
+          css: 'ace/mode/css',
+          python: 'ace/mode/python',
+          json: 'ace/mode/json'
+        };
+        editor.session.setMode(modeMap[e.target.value]);
+      });
+
+      // Theme change handler
+      document.getElementById('editorTheme').addEventListener('change', (e) => {
+        editor.setTheme(`ace/theme/${e.target.value}`);
+      });
+    }
+
+    // Enhanced Terminal
+    class EnhancedTerminal {
+      constructor() {
+        this.output = document.getElementById('terminalOutput');
+        this.input = document.getElementById('terminalInput');
+        this.history = [];
+        this.historyIndex = -1;
+        this.currentDirectory = '/home/emulation/proxy';
+        this.processes = [];
+        this.environment = {
+          USER: 'emulation',
+          HOME: '/home/emulation',
+          PATH: '/usr/local/bin:/usr/bin:/bin',
+          SHELL: '/bin/bash',
+          TERM: 'xterm-256color'
+        };
+
+        this.commands = {
+          help: () => this.showHelp(),
+          clear: () => this.clear(),
+          ls: (args) => this.listFiles(args),
+          pwd: () => this.printWorkingDirectory(),
+          cd: (args) => this.changeDirectory(args),
+          whoami: () => this.whoami(),
+          date: () => this.showDate(),
+          echo: (args) => this.echo(args),
+          cat: (args) => this.catFile(args),
+          touch: (args) => this.touchFile(args),
+          mkdir: (args) => this.makeDirectory(args),
+          rm: (args) => this.removeFile(args),
+          cp: (args) => this.copyFile(args),
+          mv: (args) => this.moveFile(args),
+          ping: (args) => this.ping(args),
+          curl: (args) => this.curl(args),
+          wget: (args) => this.wget(args),
+          ps: () => this.listProcesses(),
+          kill: (args) => this.killProcess(args),
+          top: () => this.showTop(),
+          df: () => this.showDiskUsage(),
+          free: () => this.showMemoryUsage(),
+          uptime: () => this.showUptime(),
+          env: () => this.showEnvironment(),
+          export: (args) => this.exportVariable(args),
+          history: () => this.showHistory(),
+          proxy: (args) => this.proxyCommand(args),
+          status: () => this.showStatus(),
+          version: () => this.showVersion(),
+          neofetch: () => this.neofetch(),
+          nano: (args) => this.nanoEditor(args),
+          vim: (args) => this.vimEditor(args),
+          git: (args) => this.gitCommand(args),
+          npm: (args) => this.npmCommand(args),
+          python: (args) => this.pythonCommand(args),
+          node: (args) => this.nodeCommand(args),
+          tree: (args) => this.treeCommand(args),
+          find: (args) => this.findCommand(args),
+          grep: (args) => this.grepCommand(args)
+        };
+
+        this.fileSystem = {
+          '/home/emulation/proxy': {
+            'proxy.js': 'Proxy server implementation',
+            'config.json': 'Configuration file',
+            'README.md': 'Project documentation',
+            'package.json': 'Node.js dependencies',
+            'src/': {
+              'server.js': 'Main server file',
+              'routes.js': 'API routes',
+              'middleware.js': 'Express middleware'
+            },
+            'public/': {
+              'index.html': 'Frontend interface',
+              'style.css': 'Styling',
+              'script.js': 'Client-side JavaScript'
+            }
+          }
+        };
+
+        this.initializeTerminal();
+        this.updateTime();
+      }
+
+      initializeTerminal() {
+        this.input.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            this.executeCommand();
+          } else if (e.key === 'ArrowUp') {
+            this.navigateHistory(-1);
+            e.preventDefault();
+          } else if (e.key === 'ArrowDown') {
+            this.navigateHistory(1);
+            e.preventDefault();
+          } else if (e.key === 'Tab') {
+            this.autocomplete();
+            e.preventDefault();
+          } else if (e.ctrlKey && e.key === 'c') {
+            this.addOutput('<span class="text-yellow-400">^C</span>');
+            this.input.value = '';
+            e.preventDefault();
+          } else if (e.ctrlKey && e.key === 'l') {
+            this.clear();
+            e.preventDefault();
+          }
+        });
+      }
+
+      executeCommand() {
+        const command = this.input.value.trim();
+        if (!command) return;
+
+        this.addToHistory(command);
+        this.addOutput(`<span class="text-blue-400">emulation@proxy</span>:<span class="text-green-400">${this.currentDirectory}</span>$ ${command}`);
+
+        const [cmd, ...args] = command.split(' ');
+
+        if (this.commands[cmd]) {
+          try {
+            const result = this.commands[cmd](args.join(' '));
+            if (result) this.addOutput(result);
+          } catch (error) {
+            this.addOutput(`<span class="text-red-400">Error: ${error.message}</span>`);
+          }
+        } else {
+          this.addOutput(`<span class="text-red-400">Command not found: ${cmd}</span>`);
+          this.addOutput(`Type 'help' for available commands`);
+        }
+
+        this.input.value = '';
+        this.scrollToBottom();
+        this.updateProcessCount();
+      }
+
+      addOutput(text) {
+        const div = document.createElement('div');
+        div.innerHTML = text;
+        this.output.appendChild(div);
+      }
+
+      addToHistory(command) {
+        this.history.push(command);
+        if (this.history.length > 1000) {
+          this.history.shift();
+        }
+        this.historyIndex = this.history.length;
+      }
+
+      navigateHistory(direction) {
+        const newIndex = this.historyIndex + direction;
+        if (newIndex >= 0 && newIndex <= this.history.length) {
+          this.historyIndex = newIndex;
+          this.input.value = this.history[this.historyIndex] || '';
+        }
+      }
+
+      autocomplete() {
+        const partial = this.input.value;
+        const matches = Object.keys(this.commands).filter(cmd => 
+          cmd.startsWith(partial)
+        );
+
+        if (matches.length === 1) {
+          this.input.value = matches[0] + ' ';
+        } else if (matches.length > 1) {
+          this.addOutput(`<span class="text-yellow-400">Matches: ${matches.join(', ')}</span>`);
+        }
+      }
+
+      scrollToBottom() {
+        this.output.scrollTop = this.output.scrollHeight;
+      }
+
+      updateTime() {
+        const now = new Date();
+        document.getElementById('terminalTime').textContent = now.toLocaleTimeString();
+        setTimeout(() => this.updateTime(), 1000);
+      }
+
+      updateProcessCount() {
+        document.getElementById('processCount').textContent = `${this.processes.length} processes`;
+      }
+
+      clear() {
+        this.output.innerHTML = `
+          <div class="text-blue-400">🌌 Emulation's Proxy Terminal v2.0</div>
+          <div class="text-gray-400">Enhanced shell with extended command support</div>
+          <div class="text-gray-400">Type 'help' for available commands</div>
+          <br>
+        `;
+      }
+
+      showHelp() {
+        return `<span class="text-blue-400">Available commands:</span>
+<span class="text-green-400">Navigation:</span>
+  ls [path]     - List directory contents
+  cd [path]     - Change directory
+  pwd           - Print working directory
+  tree [path]   - Show directory tree
+
+<span class="text-green-400">File Operations:</span>
+  cat [file]    - Display file contents
+  touch [file]  - Create empty file
+  mkdir [dir]   - Create directory
+  rm [file]     - Remove file
+  cp [src] [dst] - Copy file
+  mv [src] [dst] - Move/rename file
+  find [pattern] - Find files
+  grep [pattern] - Search in files
+
+<span class="text-green-400">System:</span>
+  ps            - List processes
+  kill [pid]    - Kill process
+  top           - Show running processes
+  df            - Show disk usage
+  free          - Show memory usage
+  uptime        - Show system uptime
+  env           - Show environment
+  history       - Command history
+
+<span class="text-green-400">Network:</span>
+  ping [host]   - Test connectivity
+  curl [url]    - HTTP request
+  wget [url]    - Download file
+
+<span class="text-green-400">Development:</span>
+  git [cmd]     - Git commands
+  npm [cmd]     - Node package manager
+  python [file] - Run Python script
+  node [file]   - Run Node.js script
+
+<span class="text-green-400">Editors:</span>
+  nano [file]   - Simple text editor
+  vim [file]    - Advanced text editor
+
+<span class="text-green-400">Proxy:</span>
+  proxy [cmd]   - Proxy management
+  status        - System status
+  version       - Show version
+  neofetch      - System information
+
+<span class="text-yellow-400">Shortcuts:</span>
+  Ctrl+C        - Cancel command
+  Ctrl+L        - Clear screen
+  Tab           - Autocomplete
+  ↑/↓           - Command history`;
+      }
+
+      listFiles(path = '') {
+        const targetPath = path || this.currentDirectory;
+        return `<span class="text-blue-400">total 24</span>
+<span class="text-blue-400">drwxr-xr-x</span>  emulation  emulation  4096 Dec 15 12:34 <span class="text-blue-400">src/</span>
+<span class="text-blue-400">drwxr-xr-x</span>  emulation  emulation  4096 Dec 15 12:33 <span class="text-blue-400">public/</span>
+<span class="text-green-400">-rwxr-xr-x</span>  emulation  emulation  2048 Dec 15 12:30 <span class="text-green-400">proxy.js</span>
+<span class="text-white">-rw-r--r--</span>  emulation  emulation  1024 Dec 15 12:25 <span class="text-white">config.json</span>
+<span class="text-white">-rw-r--r--</span>  emulation  emulation   512 Dec 15 12:20 <span class="text-white">package.json</span>
+<span class="text-white">-rw-r--r--</span>  emulation  emulation   256 Dec 15 12:15 <span class="text-white">README.md</span>`;
+      }
+
+      printWorkingDirectory() {
+        return `<span class="text-green-400">${this.currentDirectory}</span>`;
+      }
+
+      changeDirectory(path) {
+        if (!path || path === '~') {
+          this.currentDirectory = '/home/emulation';
+        } else if (path === '..') {
+          const parts = this.currentDirectory.split('/');
+          parts.pop();
+          this.currentDirectory = parts.join('/') || '/';
+        } else if (path.startsWith('/')) {
+          this.currentDirectory = path;
+        } else {
+          this.currentDirectory = `${this.currentDirectory}/${path}`.replace('//', '/');
+        }
+        return null;
+      }
+
+      whoami() {
+        return '<span class="text-green-400">emulation</span>';
+      }
+
+      showDate() {
+        return `<span class="text-green-400">${new Date().toString()}</span>`;
+      }
+
+      echo(text) {
+        return `<span class="text-white">${text}</span>`;
+      }
+
+      catFile(filename) {
+        if (!filename) return '<span class="text-red-400">Usage: cat <filename></span>';
+
+        const files = {
+          'config.json': `{
+  "proxy": {
+    "port": 8080,
+    "ssl": true,
+    "compression": true
+  },
+  "security": {
+    "blockAds": true,
+    "stealthMode": false
+  }
+}`,
+          'README.md': `# Emulation's Proxy
+
+Professional web proxy with integrated development tools.
+
+## Features
+- Anonymous browsing
+- SSL encryption
+- Ad blocking
+- Code editor
+- Terminal access
+- AI assistant`,
+          'package.json': `{
+  "name": "emulations-proxy",
+  "version": "2.0.0",
+  "description": "Professional web proxy",
+  "main": "proxy.js",
+  "dependencies": {
+    "express": "^4.18.0",
+    "cors": "^2.8.5"
+  }
+}`
+        };
+
+        return files[filename] ? 
+          `<pre class="text-gray-300">${files[filename]}</pre>` :
+          `<span class="text-red-400">cat: ${filename}: No such file or directory</span>`;
+      }
+
+      ping(host) {
+        if (!host) return '<span class="text-red-400">Usage: ping <host></span>';
+
+        const time = Math.random() * 100 + 10;
+        return `<span class="text-green-400">PING ${host} (${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}): 56 data bytes</span>
+<span class="text-green-400">64 bytes from ${host}: icmp_seq=1 ttl=64 time=${time.toFixed(1)} ms</span>`;
+      }
+
+      proxyCommand(args) {
+        if (!args) {
+          return `<span class="text-blue-400">Proxy Management Commands:</span>
+status      - Show proxy status
+start       - Start proxy server
+stop        - Stop proxy server
+restart     - Restart proxy server
+config      - Show configuration
+logs        - Show recent logs
+stats       - Show statistics`;
+        }
+
+        switch(args) {
+          case 'status':
+            return `<span class="text-green-400">Proxy Status: ONLINE</span>
+<span class="text-gray-400">Port: 8080</span>
+<span class="text-gray-400">SSL: Enabled</span>
+<span class="text-gray-400">Active connections: 247</span>
+<span class="text-gray-400">Uptime: 7 days, 14 hours</span>`;
+          case 'start':
+            this.processes.push({pid: Date.now(), name: 'proxy-server'});
+            return '<span class="text-green-400">Proxy server started on port 8080</span>';
+          case 'stop':
+            this.processes = this.processes.filter(p => p.name !== 'proxy-server');
+            return '<span class="text-yellow-400">Proxy server stopped</span>';
+          case 'restart':
+            return '<span class="text-blue-400">Restarting proxy server...</span>\n<span class="text-green-400">Proxy server restarted successfully</span>';
+          default:
+            return '<span class="text-red-400">Unknown proxy command</span>';
+        }
+      }
+
+      neofetch() {
+        return `<span class="text-blue-400">                   -\`               </span><span class="text-blue-400">emulation</span><span class="text-white">@</span><span class="text-blue-400">proxy</span>
+<span class="text-blue-400">                  .o+\`              </span><span class="text-white">-----------------</span>
+<span class="text-blue-400">                 \`ooo/              </span><span class="text-blue-400">OS</span><span class="text-white">: Emulation Linux x86_64</span>
+<span class="text-blue-400">                \`+oooo:             </span><span class="text-blue-400">Kernel</span><span class="text-white">: 5.15.0-proxy</span>
+<span class="text-blue-400">               \`+oooooo:            </span><span class="text-blue-400">Uptime</span><span class="text-white">: 7 days, 14 hours, 32 mins</span>
+<span class="text-blue-400">               -+oooooo+:           </span><span class="text-blue-400">Packages</span><span class="text-white">: 1247 (npm), 856 (apt)</span>
+<span class="text-blue-400">             \`/:-:++oooo+:          </span><span class="text-blue-400">Shell</span><span class="text-white">: emulation-shell 2.0</span>
+<span class="text-blue-400">            \`/++++/+++++++:         </span><span class="text-blue-400">Terminal</span><span class="text-white">: Emulation Terminal</span>
+<span class="text-blue-400">           \`/++++++++++++++:        </span><span class="text-blue-400">CPU</span><span class="text-white">: Quantum Core x64 (8) @ 3.2GHz</span>
+<span class="text-blue-400">          \`/+++ooooooooooooo/\`      </span><span class="text-blue-400">Memory</span><span class="text-white">: 1847MiB / 4096MiB</span>`;
+      }
+
+      showHistory() {
+        return this.history.slice(-20).map((cmd, i) => 
+          `<span class="text-gray-400">${this.history.length - 20 + i + 1}</span>  ${cmd}`
+        ).join('\n');
+      }
+
+      gitCommand(args) {
+        if (!args) return '<span class="text-red-400">Usage: git <command></span>';
+
+        const gitCommands = {
+          'status': `On branch main
+Your branch is up to date with 'origin/main'.
+
+Changes not staged for commit:
+  <span class="text-red-400">modified:   index.html</span>
+  <span class="text-green-400">modified:   proxy.js</span>
+
+no changes added to commit`,
+          'log': `<span class="text-yellow-400">commit abc123def456 (HEAD -> main, origin/main)</span>
+Author: Emulation <dev@emulation.com>
+Date:   Sat Dec 15 12:30:00 2024 +0000
+
+    feat: Add professional interface with tabbed navigation
+
+<span class="text-yellow-400">commit def456abc123</span>
+Author: Emulation <dev@emulation.com>
+Date:   Fri Dec 14 18:45:00 2024 +0000
+
+    initial: Basic proxy implementation`,
+          'branch': `* <span class="text-green-400">main</span>
+  development
+  feature/ai-assistant`
+        };
+
+        return gitCommands[args] || `<span class="text-red-400">git: '${args}' is not a git command</span>`;
+      }
+    }
+
+    // AI Assistant
+    class AIAssistant {
+      constructor() {
+        this.messages = document.getElementById('chatMessages');
+        this.input = document.getElementById('chatInput');
+        this.sendButton = document.getElementById('sendChat');
+        this.isTyping = false;
+
+        this.responses = {
+          greeting: [
+            "Hello! I'm here to help you with any coding or technical questions.",
+            "Hi there! What can I assist you with today?",
+            "Welcome! Feel free to ask me about programming, web development, or system administration."
+          ],
+          proxy: [
+            "For proxy issues, check your SSL settings and ensure the target URL is accessible. The proxy supports HTTPS and has built-in ad blocking.",
+            "Common proxy problems include CORS issues and SSL certificate validation. Try enabling stealth mode in settings.",
+            "The proxy uses advanced routing through multiple servers. Check the server location setting for optimal performance."
+          ],
+          coding: [
+            "I can help debug your code! Share the error message and I'll provide a solution.",
+            "For better code organization, consider using modules and proper error handling.",
+            "Best practices include proper variable naming, commenting, and following language conventions."
+          ],
+          terminal: [
+            "The terminal supports most standard Unix commands. Try 'help' for a full list.",
+            "For file operations, use ls, cd, mkdir, rm, cp, and mv. For processes, use ps, kill, and top.",
+            "Advanced features include command history (↑/↓), tab completion, and keyboard shortcuts."
+          ]
+        };
+
+        this.setupEventListeners();
+      }
+
+      setupEventListeners() {
+        this.sendButton.addEventListener('click', () => this.sendMessage());
+        this.input.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            this.sendMessage();
+          }
+        });
+
+        document.getElementById('clearChat').addEventListener('click', () => {
+          this.clearChat();
+        });
+      }
+
+      sendMessage() {
+        const message = this.input.value.trim();
+        if (!message || this.isTyping) return;
+
+        this.addMessage(message, 'user');
+        this.input.value = '';
+
+        // Simulate AI thinking
+        this.isTyping = true;
+        setTimeout(() => {
+          this.generateResponse(message);
+          this.isTyping = false;
+        }, 1000 + Math.random() * 2000);
+      }
+
+      addMessage(content, sender) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `chat-message ${sender}`;
+        
+        if (sender === 'ai') {
+          messageDiv.innerHTML = `
+            <div class="font-semibold text-purple-400 mb-2">🤖 AI Assistant</div>
+            <div>${content}</div>
+          `;
+        } else {
+          messageDiv.innerHTML = `
+            <div class="font-semibold text-blue-400 mb-2">👤 You</div>
+            <div>${content}</div>
+          `;
+        }
+
+        this.messages.appendChild(messageDiv);
+        this.messages.scrollTop = this.messages.scrollHeight;
+      }
+
+      generateResponse(message) {
+        const lowerMessage = message.toLowerCase();
+        let response;
+
+        if (lowerMessage.includes('hello') || lowerMessage.includes('hi') || lowerMessage.includes('hey')) {
+          response = this.getRandomResponse('greeting');
+        } else if (lowerMessage.includes('proxy') || lowerMessage.includes('connection') || lowerMessage.includes('ssl')) {
+          response = this.getRandomResponse('proxy');
+        } else if (lowerMessage.includes('code') || lowerMessage.includes('debug') || lowerMessage.includes('error') || lowerMessage.includes('javascript') || lowerMessage.includes('html') || lowerMessage.includes('css')) {
+          response = this.getRandomResponse('coding');
+        } else if (lowerMessage.includes('terminal') || lowerMessage.includes('command') || lowerMessage.includes('shell')) {
+          response = this.getRandomResponse('terminal');
+        } else if (lowerMessage.includes('help')) {
+          response = `I can assist you with:
+          
+• **Proxy Configuration**: SSL settings, server selection, troubleshooting
+• **Code Development**: JavaScript, HTML, CSS, Python debugging
+• **Terminal Usage**: Unix commands, file operations, process management
+• **System Administration**: Performance optimization, security settings
+• **General Programming**: Best practices, architecture, problem-solving
+
+What specific area would you like help with?`;
+        } else {
+          // More sophisticated responses based on keywords
+          if (lowerMessage.includes('error') || lowerMessage.includes('bug')) {
+            response = "I'd be happy to help debug that issue! Could you share the specific error message or describe what's not working as expected?";
+          } else if (lowerMessage.includes('performance') || lowerMessage.includes('slow')) {
+            response = "For performance issues, check: 1) Network connectivity, 2) Server location settings, 3) Browser cache, 4) Enable compression in settings. What specific performance problem are you experiencing?";
+          } else if (lowerMessage.includes('security') || lowerMessage.includes('safe')) {
+            response = "Security is a priority! The proxy includes SSL encryption, ad blocking, tracker blocking, and stealth mode. For additional security, enable WebRTC blocking in settings.";
+          } else {
+            response = "That's an interesting question! Could you provide more details so I can give you a more specific answer? I'm here to help with coding, proxy configuration, terminal usage, and general tech support.";
+          }
+        }
+
+        this.addMessage(response, 'ai');
+      }
+
+      getRandomResponse(category) {
+        const responses = this.responses[category];
+        return responses[Math.floor(Math.random() * responses.length)];
+      }
+
+      clearChat() {
+        this.messages.innerHTML = `
+          <div class="chat-message ai">
+            <div class="font-semibold text-purple-400 mb-2">🤖 AI Assistant</div>
+            <div>Chat cleared! How can I help you today?</div>
+          </div>
+        `;
+      }
+    }
+
+    // Proxy Manager
+    class ProxyManager {
+      constructor() {
+        this.frame = document.getElementById('proxyFrame');
+        this.urlInput = document.getElementById('proxyUrl');
+        this.goButton = document.getElementById('proxyGo');
+        this.addressBar = document.getElementById('addressBar');
+        this.loadingStatus = document.getElementById('loadingStatus');
+
+        this.setupEventListeners();
+        this.setupQuickLinks();
+      }
+
+      setupEventListeners() {
+        this.goButton.addEventListener('click', () => this.loadUrl());
+        this.urlInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') this.loadUrl();
+        });
+
+        document.getElementById('refreshProxy').addEventListener('click', () => {
+          if (this.frame.src && this.frame.src !== 'about:blank') {
+            this.frame.src = this.frame.src;
+            this.loadingStatus.textContent = 'Refreshing...';
+          }
+        });
+
+        document.getElementById('fullscreenProxy').addEventListener('click', () => {
+          if (this.frame.requestFullscreen) {
+            this.frame.requestFullscreen();
+          }
+        });
+
+        document.getElementById('newTabProxy').addEventListener('click', () => {
+          if (this.frame.src && this.frame.src !== 'about:blank') {
+            window.open(this.frame.src, '_blank');
+          }
+        });
+
+        // Frame load events
+        this.frame.addEventListener('load', () => {
+          this.loadingStatus.textContent = 'Connected';
+          this.loadingStatus.style.color = 'var(--success-color)';
+        });
+
+        this.frame.addEventListener('error', () => {
+          this.loadingStatus.textContent = 'Connection failed';
+          this.loadingStatus.style.color = 'var(--danger-color)';
+        });
+      }
+
+      setupQuickLinks() {
+        document.querySelectorAll('.quick-link').forEach(link => {
+          link.addEventListener('click', () => {
+            const url = link.getAttribute('data-url');
+            this.urlInput.value = url;
+            this.loadUrl();
+          });
+        });
+      }
+
+      loadUrl() {
+        const url = this.urlInput.value.trim();
+        if (!url) {
+          this.loadingStatus.textContent = 'Please enter a URL';
+          this.loadingStatus.style.color = 'var(--danger-color)';
+          return;
+        }
+
+        // Add protocol if missing
+        const fullUrl = url.startsWith('http') ? url : `https://${url}`;
+        
+        this.loadingStatus.textContent = 'Loading...';
+        this.loadingStatus.style.color = 'var(--warning-color)';
+        this.addressBar.textContent = fullUrl;
+
+        try {
+          this.frame.src = fullUrl;
+        } catch (error) {
+          this.loadingStatus.textContent = 'Failed to load';
+          this.loadingStatus.style.color = 'var(--danger-color)';
+        }
+      }
+    }
+
+    // Settings Manager
+    class SettingsManager {
+      constructor() {
+        this.settings = this.loadSettings();
+        this.setupEventListeners();
+        this.applySettings();
+      }
+
+      loadSettings() {
+        const defaultSettings = {
+          ssl: true,
+          adBlock: true,
+          stealth: false,
+          cache: true,
+          compression: true,
+          theme: 'dark',
+          fontSize: 'medium',
+          particles: true,
+          sound: false,
+          clearHistory: false,
+          blockTrackers: true,
+          disableWebRTC: false,
+          userAgent: 'default',
+          timeout: 30,
+          maxConnections: 10,
+          preload: false
+        };
+
+        try {
+          const saved = localStorage.getItem('emulationProxySettings');
+          return saved ? {...defaultSettings, ...JSON.parse(saved)} : defaultSettings;
+        } catch {
+          return defaultSettings;
+        }
+      }
+
+      saveSettings() {
+        localStorage.setItem('emulationProxySettings', JSON.stringify(this.settings));
+        this.applySettings();
+      }
+
+      setupEventListeners() {
+        // Checkbox settings
+        const checkboxSettings = [
+          'sslEnabled', 'adBlockEnabled', 'stealthMode', 'cacheEnabled', 
+          'compressionEnabled', 'particlesEnabled', 'soundEnabled',
+          'clearHistoryOnExit', 'blockTrackers', 'disableWebRTC', 'preloadEnabled'
+        ];
+
+        checkboxSettings.forEach(id => {
+          const element = document.getElementById(id);
+          if (element) {
+            element.checked = this.settings[id.replace('Enabled', '').replace('OnExit', '')];
+            element.addEventListener('change', () => {
+              this.settings[id.replace('Enabled', '').replace('OnExit', '')] = element.checked;
+              this.saveSettings();
+            });
+          }
+        });
+
+        // Select settings
+        const selectSettings = ['themeSelect', 'fontSizeSelect', 'userAgentSelect'];
+        selectSettings.forEach(id => {
+          const element = document.getElementById(id);
+          if (element) {
+            element.value = this.settings[id.replace('Select', '')];
+            element.addEventListener('change', () => {
+              this.settings[id.replace('Select', '')] = element.value;
+              this.saveSettings();
+            });
+          }
+        });
+
+        // Number settings
+        const numberSettings = ['timeoutSetting', 'maxConnections'];
+        numberSettings.forEach(id => {
+          const element = document.getElementById(id);
+          if (element) {
+            element.value = this.settings[id.replace('Setting', '')];
+            element.addEventListener('change', () => {
+              this.settings[id.replace('Setting', '')] = parseInt(element.value);
+              this.saveSettings();
+            });
+          }
+        });
+
+        // Action buttons
+        document.getElementById('saveSettings').addEventListener('click', () => {
+          this.saveSettings();
+          this.showNotification('Settings saved successfully!', 'success');
+        });
+
+        document.getElementById('resetSettings').addEventListener('click', () => {
+          if (confirm('Reset all settings to defaults?')) {
+            localStorage.removeItem('emulationProxySettings');
+            location.reload();
+          }
+        });
+
+        document.getElementById('exportSettings').addEventListener('click', () => {
+          this.exportSettings();
+        });
+
+        document.getElementById('importSettings').addEventListener('click', () => {
+          this.importSettings();
+        });
+      }
+
+      applySettings() {
+        // Apply particle settings
+        if (!this.settings.particles) {
+          const particles = document.getElementById('particles-js');
+          if (particles) particles.style.display = 'none';
+        }
+
+        // Apply font size
+        const fontSizes = {
+          small: '14px',
+          medium: '16px',
+          large: '18px',
+          xlarge: '20px'
+        };
+        document.body.style.fontSize = fontSizes[this.settings.fontSize] || '16px';
+      }
+
+      showNotification(message, type = 'info') {
+        // Simple notification system
+        const notification = document.createElement('div');
+        notification.className = `fixed top-4 right-4 p-4 rounded-lg text-white z-50 ${
+          type === 'success' ? 'bg-green-500' : 
+          type === 'error' ? 'bg-red-500' : 'bg-blue-500'
+        }`;
+        notification.textContent = message;
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+          notification.remove();
+        }, 3000);
+      }
+
+      exportSettings() {
+        const blob = new Blob([JSON.stringify(this.settings, null, 2)], {
+          type: 'application/json'
+        });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'emulation-proxy-settings.json';
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+
+      importSettings() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.json';
+        input.onchange = (e) => {
+          const file = e.target.files[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+              try {
+                const imported = JSON.parse(e.target.result);
+                this.settings = {...this.settings, ...imported};
+                this.saveSettings();
+                location.reload();
+              } catch {
+                this.showNotification('Invalid settings file', 'error');
+              }
+            };
+            reader.readAsText(file);
+          }
+        };
+        input.click();
+      }
+    }
+
+    // Code execution system
+    function setupCodeEditor() {
+      document.getElementById('runCode').addEventListener('click', () => {
+        if (!editor) return;
+
+        const code = editor.getValue();
+        const language = document.getElementById('editorLanguage').value;
+        const output = document.getElementById('codeOutput');
+
+        try {
+          // Clear previous output
+          output.innerHTML = '<div class="text-blue-400">Executing code...</div>';
+
+          if (language === 'javascript') {
+            // Capture console output
+            const originalLog = console.log;
+            const originalError = console.error;
+            const logs = [];
+
+            console.log = (...args) => {
+              logs.push(`<div class="text-green-400">${args.map(arg => 
+                typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+              ).join(' ')}</div>`);
+              originalLog.apply(console, args);
+            };
+
+            console.error = (...args) => {
+              logs.push(`<div class="text-red-400">Error: ${args.join(' ')}</div>`);
+              originalError.apply(console, args);
+            };
+
+            try {
+              // Execute the code
+              const result = eval(code);
+              if (result !== undefined) {
+                logs.push(`<div class="text-cyan-400">=> ${typeof result === 'object' ? JSON.stringify(result, null, 2) : String(result)}</div>`);
+              }
+            } catch (error) {
+              logs.push(`<div class="text-red-400">Runtime Error: ${error.message}</div>`);
+            } finally {
+              // Restore console
+              console.log = originalLog;
+              console.error = originalError;
+            }
+
+            output.innerHTML = logs.length > 0 ? logs.join('') : '<div class="text-gray-400">Code executed (no output)</div>';
+          } else {
+            output.innerHTML = `<div class="text-yellow-400">Code preview (${language}):</div><pre class="text-gray-300 mt-2">${code}</pre>`;
+          }
+
+          document.getElementById('editorStatus').textContent = 'Executed successfully';
+          document.getElementById('editorStatus').style.color = 'var(--success-color)';
+        } catch (error) {
+          output.innerHTML = `<div class="text-red-400">Execution Error: ${error.message}</div>`;
+          document.getElementById('editorStatus').textContent = `Error: ${error.message}`;
+          document.getElementById('editorStatus').style.color = 'var(--danger-color)';
+        }
+      });
+
+      document.getElementById('clearCode').addEventListener('click', () => {
+        if (editor) {
+          editor.setValue('', -1);
+          document.getElementById('editorStatus').textContent = 'Editor cleared';
+        }
+      });
+
+      document.getElementById('clearOutput').addEventListener('click', () => {
+        document.getElementById('codeOutput').innerHTML = '<div class="text-green-400">Output cleared</div>';
+      });
+
+      // Save/Load functionality
+      document.getElementById('saveCode').addEventListener('click', () => {
+        if (!editor) return;
+        const code = editor.getValue();
+        const blob = new Blob([code], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `code.${document.getElementById('editorLanguage').value}`;
+        a.click();
+        URL.revokeObjectURL(url);
+      });
+
+      document.getElementById('loadCode').addEventListener('click', () => {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.onchange = (e) => {
+          const file = e.target.files[0];
+          if (file && editor) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+              editor.setValue(e.target.result, -1);
+            };
+            reader.readAsText(file);
+          }
+        };
+        input.click();
+      });
+    }
+
+    // Update system stats
+    function updateSystemStats() {
+      const stats = {
+        uptime: Math.random() > 0.5 ? '99.9%' : '99.8%',
+        connections: Math.floor(Math.random() * 1000 + 1000).toLocaleString(),
+        bandwidth: (Math.random() * 50 + 20).toFixed(1) + ' MB/s',
+        requests: (Math.random() * 100000 + 2000000).toLocaleString().slice(0, -3) + 'K',
+        latency: Math.floor(Math.random() * 20 + 5) + 'ms',
+        errors: (Math.random() * 0.5).toFixed(1) + '%'
+      };
+
+      Object.keys(stats).forEach(key => {
+        const element = document.getElementById(key);
+        if (element) element.textContent = stats[key];
+      });
+    }
+
+    // Global keyboard shortcuts
+    function setupGlobalShortcuts() {
+      document.addEventListener('keydown', (e) => {
+        if (e.ctrlKey) {
+          switch(e.key) {
+            case 'k':
+              e.preventDefault();
+              document.getElementById('proxyUrl').focus();
+              break;
+            case 'Enter':
+              if (tabManager.activeTab === 'code') {
+                e.preventDefault();
+                document.getElementById('runCode').click();
+              }
+              break;
+            case 's':
+              if (tabManager.activeTab === 'code') {
+                e.preventDefault();
+                document.getElementById('saveCode').click();
+              }
+              break;
+          }
+        }
+      });
+    }
+
+    // Initialize all components
+    const tabManager = new TabManager();
+    const terminal = new EnhancedTerminal();
+    const aiAssistant = new AIAssistant();
+    const proxyManager = new ProxyManager();
+    const settingsManager = new SettingsManager();
+
+    setupCodeEditor();
+    setupGlobalShortcuts();
+
+    // Update stats periodically
+    setInterval(updateSystemStats, 5000);
+    updateSystemStats();
+
+    console.log('🌌 Emulation\'s Proxy Professional v2.0 - Fully Initialized!');
+    console.log('Features: Advanced Proxy • Code Editor • Terminal • AI Assistant • Professional UI');
+  </script>
+</body>
+</html>
