@@ -1237,7 +1237,38 @@ console.log('Proxy Stats:', proxy.getStats());
         document.getElementById('editorPosition').textContent = 
           `Line ${pos.row + 1}, Column ${pos.column + 1}`;
       });
+// Ambient Audio Support
+const ambientAudio = document.getElementById('ambientAudio');
+const ambientSoundCheckbox = document.getElementById('ambientSound');
+const errorDiv = document.getElementById('errorMessage');
+let audioLoaded = false;
 
+ambientSoundCheckbox.addEventListener('change', (e) => {
+  if (!audioLoaded) {
+    ambientAudio.load();
+    audioLoaded = true;
+  }
+  if (e.target.checked) {
+    ambientAudio.play().catch(err => {
+      errorDiv.textContent = `Audio error: ${err.message}`;
+      errorDiv.style.display = 'block';
+      ambientSoundCheckbox.checked = false;
+    });
+  } else {
+    ambientAudio.pause();
+    errorDiv.style.display = 'none';
+  }
+});
+
+document.addEventListener('click', () => {
+  if (ambientSoundCheckbox.checked && !audioLoaded) {
+    ambientAudio.load();
+    audioLoaded = true;
+    ambientAudio.play().catch(() => {});
+  }
+}, { once: true });
+
+      
       // Language change handler
       document.getElementById('editorLanguage').addEventListener('change', (e) => {
         const modeMap = {
