@@ -1932,7 +1932,7 @@ Date:   Fri Dec 14 18:45:00 2024 +0000
         }
 
         // Global initialization: Start the application
-        new AIAssistant();
+        new AIAssistant()
     
         try {
             const response = await fetch(url, {
@@ -2396,6 +2396,20 @@ Date:   Fri Dec 14 18:45:00 2024 +0000
     // Update stats periodically
     setInterval(updateSystemStats, 5000);
     updateSystemStats();
+
+    // Global Initialization Block (Ensure this is at the end of your script)
+// -------------------------------------------------------------------
+
+// 1. Tab Manager (CRITICAL for all tabs)
+const tabManager = new TabManager();
+// Set the initial state so the default tab is visible
+tabManager.switchTab(tabManager.activeTab); 
+
+// 2. Terminal (assuming you have the class in your full code)
+const terminal = new EnhancedTerminal();
+
+// 3. AI Assistant
+const aiAssistant = new AIAssistant();
 
     console.log('🌌 Emulation\'s Proxy Professional v2.0 - Fully Initialized!');
     console.log('Features: Advanced Proxy • Code Editor • Terminal • AI Assistant • Professional UI');
