@@ -1709,26 +1709,21 @@ Date:   Fri Dec 14 18:45:00 2024 +0000
       }
     }
 
-   // AI Assistant
+  // AI Assistant
 class AIAssistant {
     constructor() {
-        // --- 1. PLACE YOUR API KEY HERE ---
-        // ⚠️ REMEMBER: This is highly insecure for production client-side code! 
-        // Use a secure backend proxy or Firebase AI Logic for deployment.
         this.GEMINI_API_KEY = "AIzaSyB5FoFx0DT86OoU0TzEiDkfJbT_byqrzWE"; 
-        this.GEMINI_MODEL = "gemini-2.5-flash"; // A fast and capable model
+        this.GEMINI_MODEL = "gemini-2.5-flash"; 
 
         this.messages = document.getElementById('chatMessages');
         this.input = document.getElementById('chatInput');
         this.sendButton = document.getElementById('sendChat');
         this.isTyping = false;
         
-        // --- 2. REMOVE the hardcoded 'this.responses' object ---
-        // It's no longer needed as Gemini will generate responses.
-        
         this.setupEventListeners();
     }
-
+    // ... rest of the class methods (setupEventListeners, sendMessage, etc.) ...
+}
     setupEventListeners() {
         this.sendButton.addEventListener('click', () => this.sendMessage());
         this.input.addEventListener('keydown', (e) => {
