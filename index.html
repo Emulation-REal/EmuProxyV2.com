@@ -2382,34 +2382,29 @@ Date:   Fri Dec 14 18:45:00 2024 +0000
         }
       });
     }
-
-    // Initialize all components
-    const tabManager = new TabManager();
-    const terminal = new EnhancedTerminal();
-    const aiAssistant = new AIAssistant();
-    const proxyManager = new ProxyManager();
-    const settingsManager = new SettingsManager();
-
-    setupCodeEditor();
-    setupGlobalShortcuts();
-
-    // Update stats periodically
-    setInterval(updateSystemStats, 5000);
-    updateSystemStats();
-
-    // Global Initialization Block (Ensure this is at the end of your script)
+// FINAL, CORRECT GLOBAL INITIALIZATION BLOCK
 // -------------------------------------------------------------------
 
-// 1. Tab Manager (CRITICAL for all tabs)
+// 1. Initialize core components
 const tabManager = new TabManager();
-// Set the initial state so the default tab is visible
+const terminal = new EnhancedTerminal();
+const aiAssistant = new AIAssistant();
+const proxyManager = new ProxyManager(); // Add back missing component
+const settingsManager = new SettingsManager(); // Add back missing component
+
+// 2. Set initial UI state
+// IMPORTANT: This line is only needed if it's NOT in the TabManager constructor.
+// Based on our previous discussion, it's safer to have it in the constructor.
+// If it IS in the constructor, you can remove it here.
 tabManager.switchTab(tabManager.activeTab); 
 
-// 2. Terminal (assuming you have the class in your full code)
-const terminal = new EnhancedTerminal();
+// 3. Setup functions
+setupCodeEditor();
+setupGlobalShortcuts();
 
-// 3. AI Assistant
-const aiAssistant = new AIAssistant();
+// 4. Start background processes
+setInterval(updateSystemStats, 5000);
+updateSystemStats();
 
     console.log('🌌 Emulation\'s Proxy Professional v2.0 - Fully Initialized!');
     console.log('Features: Advanced Proxy • Code Editor • Terminal • AI Assistant • Professional UI');
