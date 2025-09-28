@@ -1107,65 +1107,6 @@
       }
     });
 
-    // Tab System
-    class TabManager {
-      constructor() {
-        this.activeTab = 'proxy';
-        this.initializeTabs();
-        this.setupKeyboardShortcuts();
-         this.switchTab(this.activeTab); 
-      }
-
-      initializeTabs() {
-        const tabButtons = document.querySelectorAll('.tab-button');
-        const tabContents = document.querySelectorAll('.tab-content');
-
-        tabButtons.forEach(button => {
-          button.addEventListener('click', () => {
-            const tabId = button.getAttribute('data-tab');
-            this.switchTab(tabId);
-          });
-        });
-      }
-
-      switchTab(tabId) {
-        // Remove active class from all tabs and contents
-        document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-
-        // Add active class to selected tab and content
-        document.querySelector(`[data-tab="${tabId}"]`).classList.add('active');
-        document.getElementById(`${tabId}-tab`).classList.add('active');
-
-        this.activeTab = tabId;
-
-        // Initialize specific tab features
-        if (tabId === 'code' && typeof editor !== 'undefined') {
-          setTimeout(() => editor.resize(), 100);
-        }
-      }
-
-      setupKeyboardShortcuts() {
-        document.addEventListener('keydown', (e) => {
-          if (e.ctrlKey) {
-            const tabMap = {
-              '1': 'proxy',
-              '2': 'code', 
-              '3': 'terminal',
-              '4': 'ai',
-              '5': 'settings',
-              '6': 'help'
-            };
-
-            if (tabMap[e.key]) {
-              e.preventDefault();
-              this.switchTab(tabMap[e.key]);
-            }
-          }
-        });
-      }
-    }
-
     // Initialize Code Editor
     let editor;
     if (typeof ace !== 'undefined') {
@@ -2358,57 +2299,125 @@ Date:   Fri Dec 14 18:45:00 2024 +0000
       });
     }
 
-    // Global keyboard shortcuts
-    function setupGlobalShortcuts() {
-      document.addEventListener('keydown', (e) => {
-        if (e.ctrlKey) {
-          switch(e.key) {
-            case 'k':
-              e.preventDefault();
-              document.getElementById('proxyUrl').focus();
-              break;
-            case 'Enter':
-              if (tabManager.activeTab === 'code') {
-                e.preventDefault();
-                document.getElementById('runCode').click();
-              }
-              break;
-            case 's':
-              if (tabManager.activeTab === 'code') {
-                e.preventDefault();
-                document.getElementById('saveCode').click();
-              }
-              break;
-          }
-        }
+// Global keyboard shortcuts MUST be defined as a FUNCTION or inside the TabManager
+// to ensure it can access necessary variables.
+// Since you want to use 'tabManager' variable, we'll define this function last.
+
+// -------------------------------------------------------------------
+// 1. TabManager Class (Simplified - removed redundant internal setupKeyboardShortcuts)
+// -------------------------------------------------------------------
+class TabManager {
+  constructor() {
+    this.activeTab = 'proxy';
+    this.initializeTabs();
+    this.switchTab(this.activeTab); 
+  }
+
+  initializeTabs() {
+    const tabButtons = document.querySelectorAll('.tab-button');
+    tabButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const tabId = button.getAttribute('data-tab');
+        this.switchTab(tabId);
+      });
+    });
+  }
+
+  switchTab(tabId) {
+    // Remove active class from all tabs and contents
+    document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+    // Add active class to selected tab and content
+    const tabButton = document.querySelector(`[data-tab="${tabId}"]`);
+    const tabContent = document.getElementById(`${tabId}-tab`);
+    
+    // Safety check to ensure elements exist before adding class
+    if (tabButton) tabButton.classList.add('active');
+    if (tabContent) tabContent.classList.add('active');
+
+    this.activeTab = tabId;
+
+    // Initialize specific tab features
+    if (tabId === 'code' && typeof editor !== 'undefined') {
+      // Use requestAnimationFrame for better timing when dealing with UI libraries
+      requestAnimationFrame(() => {
+          setTimeout(() => editor.resize(), 10);
       });
     }
-// FINAL, CORRECT GLOBAL INITIALIZATION BLOCK
+  }
+  
+  // NOTE: setupKeyboardShortcuts() method is REMOVED from the class
+  // because we are putting the tab switching logic into the global function below.
+}
+
 // -------------------------------------------------------------------
-
-// 1. Initialize core components
+// 2. Initialization of Global Variables
+// -------------------------------------------------------------------
+// NOTE: These components must be defined BEFORE the functions that use them.
 const tabManager = new TabManager();
-const terminal = new EnhancedTerminal();
-const aiAssistant = new AIAssistant();
-const proxyManager = new ProxyManager(); // Add back missing component
-const settingsManager = new SettingsManager(); // Add back missing component
+// Assume other managers are defined here for completeness
+const terminal = typeof EnhancedTerminal !== 'undefined' ? new EnhancedTerminal() : null;
+const aiAssistant = typeof AIAssistant !== 'undefined' ? new AIAssistant() : null;
+const proxyManager = typeof ProxyManager !== 'undefined' ? new ProxyManager() : null;
+const settingsManager = typeof SettingsManager !== 'undefined' ? new SettingsManager() : null;
 
-// 2. Set initial UI state
-// IMPORTANT: This line is only needed if it's NOT in the TabManager constructor.
-// Based on our previous discussion, it's safer to have it in the constructor.
-// If it IS in the constructor, you can remove it here.
-tabManager.switchTab(tabManager.activeTab); 
 
-// 3. Setup functions
-setupCodeEditor();
-setupGlobalShortcuts();
+// -------------------------------------------------------------------
+// 3. Global Shortcut Setup (MUST be defined AFTER tabManager)
+// -------------------------------------------------------------------
+function setupGlobalShortcuts() {
+  document.addEventListener('keydown', (e) => {
+    if (e.ctrlKey) {
+      // 1. Tab Switching Shortcuts (Ctrl + 1-6)
+      const tabMap = {
+        '1': 'proxy', '2': 'code', '3': 'terminal',
+        '4': 'ai', '5': 'settings', '6': 'help'
+      };
 
-// 4. Start background processes
-setInterval(updateSystemStats, 5000);
+      if (tabMap[e.key]) {
+        e.preventDefault();
+        tabManager.switchTab(tabMap[e.key]);
+        return; // Stop here if it's a tab switch
+      }
+
+      // 2. Tab-Specific Shortcuts (Ctrl + K, Ctrl + Enter, Ctrl + S)
+      switch(e.key) {
+        case 'k': // Ctrl + K (Focus Proxy URL)
+          e.preventDefault();
+          document.getElementById('proxyUrl').focus();
+          break;
+        case 'Enter': // Ctrl + Enter (Run Code)
+          if (tabManager.activeTab === 'code') {
+            e.preventDefault();
+            document.getElementById('runCode').click();
+          }
+          break;
+        case 's': // Ctrl + S (Save Code)
+          if (tabManager.activeTab === 'code') {
+            e.preventDefault();
+            document.getElementById('saveCode').click();
+          }
+          break;
+      }
+    }
+  });
+}
+
+
+// -------------------------------------------------------------------
+// 4. Final Execution Block
+// -------------------------------------------------------------------
+// NOTE: Now the functions are called AFTER everything is defined.
+setupCodeEditor(); // Assume this function is defined elsewhere
+setupGlobalShortcuts(); 
+
+// Start background processes
+setInterval(updateSystemStats, 5000); // Assume this function is defined elsewhere
 updateSystemStats();
 
-    console.log('🌌 Emulation\'s Proxy Professional v2.0 - Fully Initialized!');
-    console.log('Features: Advanced Proxy • Code Editor • Terminal • AI Assistant • Professional UI');
+console.log('🌌 Emulation\'s Proxy Professional v2.0 - Fully Initialized!');
+console.log('Features: Advanced Proxy • Code Editor • Terminal • AI Assistant • Professional UI');
   </script>
 </body>
 </html>
