@@ -1709,104 +1709,231 @@ Date:   Fri Dec 14 18:45:00 2024 +0000
       }
     }
 
-  // AI Assistant
-class AIAssistant {
-    constructor() {
-        this.GEMINI_API_KEY = "AIzaSyB5FoFx0DT86OoU0TzEiDkfJbT_byqrzWE"; 
-        this.GEMINI_MODEL = "gemini-2.5-flash"; 
+/**
+         * AIAssistant Class: Encapsulates all chat logic, UI interaction, and Gemini API calls.
+         */
+        class AIAssistant {
+            constructor() {
+                // Configuration
+                // CRITICAL: Your API Key is embedded here.
+                this.apiKey = "AIzaSyB5FoFx0DT86OoU0TzEiDkfJbT_byqrzWE";
+                this.API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent";
+                this.MAX_RETRIES = 3;
 
-        this.messages = document.getElementById('chatMessages');
-        this.input = document.getElementById('chatInput');
-        this.sendButton = document.getElementById('sendChat');
-        this.isTyping = false;
-        
-        this.setupEventListeners();
-    }
-    // ... rest of the class methods (setupEventListeners, sendMessage, etc.) ...
-}
-    setupEventListeners() {
-        this.sendButton.addEventListener('click', () => this.sendMessage());
-        this.input.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                this.sendMessage();
+                // State
+                this.chatHistory = [];
+                this.isTyping = false; // Flag to prevent multiple concurrent requests
+
+                // UI elements (using existing IDs from the HTML)
+                this.chatWindow = document.getElementById('chat-window');
+                this.userInput = document.getElementById('user-input');
+                this.sendButton = document.getElementById('send-button');
+                this.loadingIndicator = document.getElementById('loading-indicator');
+                this.errorMessage = document.getElementById('error-message');
+                this.errorText = document.getElementById('error-text');
+
+                this.setupEventListeners();
             }
-        });
 
-        document.getElementById('clearChat').addEventListener('click', () => {
-            this.clearChat();
-        });
-    }
+            /**
+             * Initializes event listeners for the send button and input field.
+             */
+            setupEventListeners() {
+                this.sendButton.addEventListener('click', () => this.handleUserMessage());
+                
+                // Use keydown event on the input field to trigger send
+                this.userInput.addEventListener('keydown', (e) => {
+                    // Check for Enter key without Shift (allows Shift+Enter for new line)
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        this.handleUserMessage();
+                    }
+                });
 
-    // This method is now async because it needs to wait for the API call
-    async sendMessage() {
-        const message = this.input.value.trim();
-        if (!message || this.isTyping) return;
-
-        this.addMessage(message, 'user');
-        this.input.value = '';
-
-        // Indicate AI is typing
-        this.isTyping = true;
-        this.sendButton.disabled = true; // Disable button while typing
-
-        try {
-            // --- 3. CALL THE NEW ASYNC GENERATERESPONSE METHOD ---
-            await this.generateResponse(message);
-        } catch (error) {
-            console.error("Chat Error:", error);
-            this.addMessage("Sorry, I ran into an error getting a response. Please check the console for details.", 'ai');
-        } finally {
-            // Restore state after receiving a response (or error)
-            this.isTyping = false;
-            this.sendButton.disabled = false;
-        }
-    }
-
-    addMessage(content, sender) {
-        // (Keep your existing addMessage logic. It handles the display.)
-        const messageDiv = document.createElement('div');
-        messageDiv.className = `chat-message ${sender}`;
-        
-        if (sender === 'ai') {
-            // We use 'assistant' as a temporary placeholder while waiting for the real response
-            if (content === 'typing...') {
-                messageDiv.id = 'ai-typing-indicator'; // Add an ID to easily find and update it
-                messageDiv.innerHTML = `<div class="font-semibold text-purple-400 mb-2">🤖 AI Assistant</div><div>${content}</div>`;
-            } else {
-                messageDiv.innerHTML = `
-                    <div class="font-semibold text-purple-400 mb-2">🤖 AI Assistant</div>
-                    <div>${content}</div>
-                `;
+                // Set initial focus
+                window.onload = () => this.userInput.focus();
             }
-        } else {
-            messageDiv.innerHTML = `
-                <div class="font-semibold text-blue-400 mb-2">👤 You</div>
-                <div>${content}</div>
-            `;
+
+            /**
+             * Converts simple newlines to HTML break tags for display.
+             * @param {string} text The raw text.
+             * @returns {string} Text with <br> tags.
+             */
+            formatText(text) {
+                return text.replace(/\n/g, '<br>');
+            }
+
+            /**
+             * Adds a message bubble to the chat window.
+             * @param {string} text The message content.
+             * @param {string} role 'user' or 'gemini'.
+             */
+            addMessage(text, role) {
+                const container = document.createElement('div');
+                container.classList.add('flex', role === 'user' ? 'justify-end' : 'justify-start');
+
+                const bubble = document.createElement('div');
+                bubble.classList.add(
+                    'p-3', 
+                    'rounded-xl', 
+                    'max-w-[85%]', 
+                    'shadow-md',
+                    role === 'user' ? 'user-bubble' : 'gemini-bubble'
+                );
+                bubble.innerHTML = this.formatText(text);
+
+                container.appendChild(bubble);
+                this.chatWindow.appendChild(container);
+                
+                // Scroll to the bottom
+                this.chatWindow.scrollTop = this.chatWindow.scrollHeight;
+            }
+
+            /**
+             * Shows an error message in the UI.
+             * @param {string} message The error message to display.
+             */
+            displayError(message) {
+                this.errorText.textContent = message;
+                this.errorMessage.classList.remove('hidden');
+            }
+
+            /**
+             * Hides the error message in the UI.
+             */
+            hideError() {
+                this.errorMessage.classList.add('hidden');
+            }
+
+            /**
+             * Handles the user's message submission, updates UI, and triggers the API call.
+             */
+            async handleUserMessage() {
+                this.hideError();
+                const prompt = this.userInput.value.trim();
+                if (!prompt || this.isTyping) return;
+
+                if (!this.apiKey) {
+                    this.displayError("Please paste your Gemini API key into the 'apiKey' property of the AIAssistant class.");
+                    return;
+                }
+
+                // 1. Update UI with User Message and update history
+                this.addMessage(prompt, 'user');
+                this.chatHistory.push({
+                    role: "user",
+                    parts: [{ text: prompt }]
+                });
+
+                // 2. Clear input and disable UI
+                this.userInput.value = '';
+                this.sendButton.disabled = true;
+                this.loadingIndicator.classList.remove('hidden');
+                this.isTyping = true;
+
+                try {
+                    // 3. Generate response using the core API method
+                    const responseText = await this._generateResponse();
+
+                    if (responseText) {
+                        // 4. Update UI with Gemini's response and update history
+                        this.addMessage(responseText, 'gemini');
+                        this.chatHistory.push({
+                            role: "model",
+                            parts: [{ text: responseText }]
+                        });
+                    }
+
+                } catch (error) {
+                    console.error("Fatal chat error:", error);
+                    this.displayError("Failed to get a response from the AI. Details: " + error.message);
+                } finally {
+                    // 5. Re-enable input
+                    this.loadingIndicator.classList.add('hidden');
+                    this.sendButton.disabled = false;
+                    this.userInput.focus();
+                    this.isTyping = false;
+                }
+            }
+
+            /**
+             * Core function to call the Gemini API with exponential backoff.
+             * @returns {Promise<string|null>} The generated text or null if failed/blocked.
+             */
+            async _generateResponse() {
+                const payload = {
+                    contents: this.chatHistory,
+                    // Optional config to slightly steer the model towards being helpful
+                    systemInstruction: {
+                        parts: [{ text: "You are a friendly, helpful, and concise AI assistant." }]
+                    },
+                    generationConfig: {
+                        temperature: 0.7,
+                        maxOutputTokens: 2048,
+                    }
+                };
+
+                let response;
+                let success = false;
+                let lastError = new Error("API call failed before retries started.");
+                
+                // Implement exponential backoff for the fetch call
+                for (let i = 0; i < this.MAX_RETRIES; i++) {
+                    try {
+                        response = await fetch(this.API_URL + `?key=${this.apiKey}`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+
+                        if (response.ok) {
+                            success = true;
+                            break;
+                        }
+
+                        if (response.status === 429 || response.status >= 500) {
+                            // Retryable error
+                            console.warn(`Attempt ${i + 1} failed with status ${response.status}. Retrying...`);
+                            lastError = new Error(`Retryable API Error: ${response.status}`);
+                            await new Promise(resolve => setTimeout(resolve, Math.pow(2, i) * 1000));
+                        } else {
+                            // Non-retryable error
+                            const errorData = await response.json();
+                            lastError = new Error(`API Error: ${response.status} - ${errorData.error.message || 'Unknown error'}`);
+                            throw lastError;
+                        }
+
+                    } catch (fetchError) {
+                        lastError = fetchError;
+                        if (i === this.MAX_RETRIES - 1) {
+                            throw lastError; // Rethrow on last retry
+                        }
+                        await new Promise(resolve => setTimeout(resolve, Math.pow(2, i) * 1000));
+                    }
+                }
+
+                if (!success) {
+                    throw lastError;
+                }
+
+                const result = await response.json();
+                const candidate = result.candidates?.[0];
+
+                if (candidate) {
+                    if (candidate.content?.parts?.[0]?.text) {
+                        return candidate.content.parts[0].text;
+                    } else if (candidate.finishReason === 'SAFETY') {
+                        return "I'm sorry, that request was blocked due to safety settings.";
+                    }
+                }
+                
+                return null;
+            }
         }
 
-        this.messages.appendChild(messageDiv);
-        this.messages.scrollTop = this.messages.scrollHeight;
-    }
-
-    // --- 4. THE CORE: This function now makes the API call ---
-    async generateResponse(message) {
-        // Show a "typing" indicator immediately
-        this.addMessage('typing...', 'ai');
-        const typingIndicator = document.getElementById('ai-typing-indicator');
-
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/${this.GEMINI_MODEL}:generateContent?key=${this.GEMINI_API_KEY}`;
-        
-        const payload = {
-            contents: [
-                {
-                    parts: [{ text: message }],
-                },
-            ],
-            // Optional: You can add system instructions or other configurations here
-        };
-
+        // Global initialization: Start the application
+        new AIAssistant();
+    
         try {
             const response = await fetch(url, {
                 method: "POST",
