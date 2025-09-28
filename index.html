@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -403,15 +402,15 @@
         padding: 8px 12px;
         font-size: 14px;
       }
-      
+
       .tab-content {
         padding: 16px;
       }
-      
+
       .terminal {
         height: 300px;
       }
-      
+
       .code-editor-container {
         height: 400px;
       }
@@ -456,7 +455,7 @@
         <!-- Tab Navigation -->
         <div class="tab-container">
           <div class="flex overflow-x-auto">
-            <button class="tab-button" data-tab="proxy">
+            <button class="tab-button active" data-tab="proxy">
               <i class="fas fa-globe"></i>
               Proxy
             </button>
@@ -484,9 +483,9 @@
         </div>
 
         <!-- Tab Contents -->
-        
+
         <!-- Proxy Tab -->
-        <div class="tab-content" id="proxy-tab">
+        <div class="tab-content active" id="proxy-tab">
           <div class="space-y-6">
             <div class="flex items-center justify-between">
               <h2 class="text-2xl font-bold orbitron">
@@ -724,7 +723,7 @@
               <div class="flex space-x-3">
                 <div class="status-indicator status-online">
                   <i class="fas fa-brain"></i>
-                  Google Gemini
+                  GPT-4 Active
                 </div>
                 <button id="clearChat" class="btn-secondary">
                   <i class="fas fa-trash mr-2"></i>Clear Chat
@@ -1107,6 +1106,64 @@
       }
     });
 
+    // Tab System
+    class TabManager {
+      constructor() {
+        this.activeTab = 'proxy';
+        this.initializeTabs();
+        this.setupKeyboardShortcuts();
+      }
+
+      initializeTabs() {
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabButtons.forEach(button => {
+          button.addEventListener('click', () => {
+            const tabId = button.getAttribute('data-tab');
+            this.switchTab(tabId);
+          });
+        });
+      }
+
+      switchTab(tabId) {
+        // Remove active class from all tabs and contents
+        document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+        // Add active class to selected tab and content
+        document.querySelector(`[data-tab="${tabId}"]`).classList.add('active');
+        document.getElementById(`${tabId}-tab`).classList.add('active');
+
+        this.activeTab = tabId;
+
+        // Initialize specific tab features
+        if (tabId === 'code' && typeof editor !== 'undefined') {
+          setTimeout(() => editor.resize(), 100);
+        }
+      }
+
+      setupKeyboardShortcuts() {
+        document.addEventListener('keydown', (e) => {
+          if (e.ctrlKey) {
+            const tabMap = {
+              '1': 'proxy',
+              '2': 'code', 
+              '3': 'terminal',
+              '4': 'ai',
+              '5': 'settings',
+              '6': 'help'
+            };
+
+            if (tabMap[e.key]) {
+              e.preventDefault();
+              this.switchTab(tabMap[e.key]);
+            }
+          }
+        });
+      }
+    }
+
     // Initialize Code Editor
     let editor;
     if (typeof ace !== 'undefined') {
@@ -1210,7 +1267,7 @@ document.addEventListener('click', () => {
   }
 }, { once: true });
 
-      
+
       // Language change handler
       document.getElementById('editorLanguage').addEventListener('change', (e) => {
         const modeMap = {
@@ -1651,231 +1708,201 @@ Date:   Fri Dec 14 18:45:00 2024 +0000
       }
     }
 
-/**
-         * AIAssistant Class: Encapsulates all chat logic, UI interaction, and Gemini API calls.
-         */
-        class AIAssistant {
-            constructor() {
-                // Configuration
-                // CRITICAL: Your API Key is embedded here.
-                this.apiKey = "AIzaSyB5FoFx0DT86OoU0TzEiDkfJbT_byqrzWE";
-                this.API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent";
-                this.MAX_RETRIES = 3;
+    // AI Assistant
+    class AIAssistant {
+      constructor() {
+   // AI Assistant
+class AIAssistant {
+    constructor() {
+        // --- 1. PLACE YOUR API KEY HERE ---
+        // ⚠️ REMEMBER: This is highly insecure for production client-side code! 
+        // Use a secure backend proxy or Firebase AI Logic for deployment.
+        this.GEMINI_API_KEY = "YOUR_GEMINI_API_KEY_HERE"; 
+        this.GEMINI_MODEL = "gemini-2.5-flash"; // A fast and capable model
 
-                // State
-                this.chatHistory = [];
-                this.isTyping = false; // Flag to prevent multiple concurrent requests
+        this.messages = document.getElementById('chatMessages');
+        this.input = document.getElementById('chatInput');
+        this.sendButton = document.getElementById('sendChat');
+        this.isTyping = false;
 
-                // UI elements (using existing IDs from the HTML)
-                this.chatWindow = document.getElementById('chat-window');
-                this.userInput = document.getElementById('user-input');
-                this.sendButton = document.getElementById('send-button');
-                this.loadingIndicator = document.getElementById('loading-indicator');
-                this.errorMessage = document.getElementById('error-message');
-                this.errorText = document.getElementById('error-text');
+        this.responses = {
+          greeting: [
+            "Hello! I'm here to help you with any coding or technical questions.",
+            "Hi there! What can I assist you with today?",
+            "Welcome! Feel free to ask me about programming, web development, or system administration."
+          ],
+          proxy: [
+            "For proxy issues, check your SSL settings and ensure the target URL is accessible. The proxy supports HTTPS and has built-in ad blocking.",
+            "Common proxy problems include CORS issues and SSL certificate validation. Try enabling stealth mode in settings.",
+            "The proxy uses advanced routing through multiple servers. Check the server location setting for optimal performance."
+          ],
+          coding: [
+            "I can help debug your code! Share the error message and I'll provide a solution.",
+            "For better code organization, consider using modules and proper error handling.",
+            "Best practices include proper variable naming, commenting, and following language conventions."
+          ],
+          terminal: [
+            "The terminal supports most standard Unix commands. Try 'help' for a full list.",
+            "For file operations, use ls, cd, mkdir, rm, cp, and mv. For processes, use ps, kill, and top.",
+            "Advanced features include command history (↑/↓), tab completion, and keyboard shortcuts."
+          ]
+        };
 
-                this.setupEventListeners();
+        
+        // --- 2. REMOVE the hardcoded 'this.responses' object ---
+        // It's no longer needed as Gemini will generate responses.
+        
+        this.setupEventListeners();
+      }
+    }
+
+      setupEventListeners() {
+    setupEventListeners() {
+        this.sendButton.addEventListener('click', () => this.sendMessage());
+        this.input.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            this.sendMessage();
+          }
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                this.sendMessage();
             }
+        });
 
-            /**
-             * Initializes event listeners for the send button and input field.
-             */
-            setupEventListeners() {
-                this.sendButton.addEventListener('click', () => this.handleUserMessage());
-                
-                // Use keydown event on the input field to trigger send
-                this.userInput.addEventListener('keydown', (e) => {
-                    // Check for Enter key without Shift (allows Shift+Enter for new line)
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        this.handleUserMessage();
-                    }
-                });
+        document.getElementById('clearChat').addEventListener('click', () => {
+          this.clearChat();
+            this.clearChat();
+        });
+      }
+    }
 
-                // Set initial focus
-                window.onload = () => this.userInput.focus();
+      sendMessage() {
+    // This method is now async because it needs to wait for the API call
+    async sendMessage() {
+        const message = this.input.value.trim();
+        if (!message || this.isTyping) return;
+
+        this.addMessage(message, 'user');
+        this.input.value = '';
+
+        // Simulate AI thinking
+        // Indicate AI is typing
+        this.isTyping = true;
+        setTimeout(() => {
+          this.generateResponse(message);
+          this.isTyping = false;
+        }, 1000 + Math.random() * 2000);
+      }
+        this.sendButton.disabled = true; // Disable button while typing
+
+        try {
+            // --- 3. CALL THE NEW ASYNC GENERATERESPONSE METHOD ---
+            await this.generateResponse(message);
+        } catch (error) {
+            console.error("Chat Error:", error);
+            this.addMessage("Sorry, I ran into an error getting a response. Please check the console for details.", 'ai');
+        } finally {
+            // Restore state after receiving a response (or error)
+            this.isTyping = false;
+            this.sendButton.disabled = false;
+        }
+    }
+
+      addMessage(content, sender) {
+    addMessage(content, sender) {
+        // (Keep your existing addMessage logic. It handles the display.)
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `chat-message ${sender}`;
+
+        if (sender === 'ai') {
+          messageDiv.innerHTML = `
+            <div class="font-semibold text-purple-400 mb-2">🤖 AI Assistant</div>
+            <div>${content}</div>
+          `;
+            // We use 'assistant' as a temporary placeholder while waiting for the real response
+            if (content === 'typing...') {
+                messageDiv.id = 'ai-typing-indicator'; // Add an ID to easily find and update it
+                messageDiv.innerHTML = `<div class="font-semibold text-purple-400 mb-2">🤖 AI Assistant</div><div>${content}</div>`;
+            } else {
+                messageDiv.innerHTML = `
+                    <div class="font-semibold text-purple-400 mb-2">🤖 AI Assistant</div>
+                    <div>${content}</div>
+                `;
             }
-
-            /**
-             * Converts simple newlines to HTML break tags for display.
-             * @param {string} text The raw text.
-             * @returns {string} Text with <br> tags.
-             */
-            formatText(text) {
-                return text.replace(/\n/g, '<br>');
-            }
-
-            /**
-             * Adds a message bubble to the chat window.
-             * @param {string} text The message content.
-             * @param {string} role 'user' or 'gemini'.
-             */
-            addMessage(text, role) {
-                const container = document.createElement('div');
-                container.classList.add('flex', role === 'user' ? 'justify-end' : 'justify-start');
-
-                const bubble = document.createElement('div');
-                bubble.classList.add(
-                    'p-3', 
-                    'rounded-xl', 
-                    'max-w-[85%]', 
-                    'shadow-md',
-                    role === 'user' ? 'user-bubble' : 'gemini-bubble'
-                );
-                bubble.innerHTML = this.formatText(text);
-
-                container.appendChild(bubble);
-                this.chatWindow.appendChild(container);
-                
-                // Scroll to the bottom
-                this.chatWindow.scrollTop = this.chatWindow.scrollHeight;
-            }
-
-            /**
-             * Shows an error message in the UI.
-             * @param {string} message The error message to display.
-             */
-            displayError(message) {
-                this.errorText.textContent = message;
-                this.errorMessage.classList.remove('hidden');
-            }
-
-            /**
-             * Hides the error message in the UI.
-             */
-            hideError() {
-                this.errorMessage.classList.add('hidden');
-            }
-
-            /**
-             * Handles the user's message submission, updates UI, and triggers the API call.
-             */
-            async handleUserMessage() {
-                this.hideError();
-                const prompt = this.userInput.value.trim();
-                if (!prompt || this.isTyping) return;
-
-                if (!this.apiKey) {
-                    this.displayError("Please paste your Gemini API key into the 'apiKey' property of the AIAssistant class.");
-                    return;
-                }
-
-                // 1. Update UI with User Message and update history
-                this.addMessage(prompt, 'user');
-                this.chatHistory.push({
-                    role: "user",
-                    parts: [{ text: prompt }]
-                });
-
-                // 2. Clear input and disable UI
-                this.userInput.value = '';
-                this.sendButton.disabled = true;
-                this.loadingIndicator.classList.remove('hidden');
-                this.isTyping = true;
-
-                try {
-                    // 3. Generate response using the core API method
-                    const responseText = await this._generateResponse();
-
-                    if (responseText) {
-                        // 4. Update UI with Gemini's response and update history
-                        this.addMessage(responseText, 'gemini');
-                        this.chatHistory.push({
-                            role: "model",
-                            parts: [{ text: responseText }]
-                        });
-                    }
-
-                } catch (error) {
-                    console.error("Fatal chat error:", error);
-                    this.displayError("Failed to get a response from the AI. Details: " + error.message);
-                } finally {
-                    // 5. Re-enable input
-                    this.loadingIndicator.classList.add('hidden');
-                    this.sendButton.disabled = false;
-                    this.userInput.focus();
-                    this.isTyping = false;
-                }
-            }
-
-            /**
-             * Core function to call the Gemini API with exponential backoff.
-             * @returns {Promise<string|null>} The generated text or null if failed/blocked.
-             */
-            async _generateResponse() {
-                const payload = {
-                    contents: this.chatHistory,
-                    // Optional config to slightly steer the model towards being helpful
-                    systemInstruction: {
-                        parts: [{ text: "You are a friendly, helpful, and concise AI assistant." }]
-                    },
-                    generationConfig: {
-                        temperature: 0.7,
-                        maxOutputTokens: 2048,
-                    }
-                };
-
-                let response;
-                let success = false;
-                let lastError = new Error("API call failed before retries started.");
-                
-                // Implement exponential backoff for the fetch call
-                for (let i = 0; i < this.MAX_RETRIES; i++) {
-                    try {
-                        response = await fetch(this.API_URL + `?key=${this.apiKey}`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(payload)
-                        });
-
-                        if (response.ok) {
-                            success = true;
-                            break;
-                        }
-
-                        if (response.status === 429 || response.status >= 500) {
-                            // Retryable error
-                            console.warn(`Attempt ${i + 1} failed with status ${response.status}. Retrying...`);
-                            lastError = new Error(`Retryable API Error: ${response.status}`);
-                            await new Promise(resolve => setTimeout(resolve, Math.pow(2, i) * 1000));
-                        } else {
-                            // Non-retryable error
-                            const errorData = await response.json();
-                            lastError = new Error(`API Error: ${response.status} - ${errorData.error.message || 'Unknown error'}`);
-                            throw lastError;
-                        }
-
-                    } catch (fetchError) {
-                        lastError = fetchError;
-                        if (i === this.MAX_RETRIES - 1) {
-                            throw lastError; // Rethrow on last retry
-                        }
-                        await new Promise(resolve => setTimeout(resolve, Math.pow(2, i) * 1000));
-                    }
-                }
-
-                if (!success) {
-                    throw lastError;
-                }
-
-                const result = await response.json();
-                const candidate = result.candidates?.[0];
-
-                if (candidate) {
-                    if (candidate.content?.parts?.[0]?.text) {
-                        return candidate.content.parts[0].text;
-                    } else if (candidate.finishReason === 'SAFETY') {
-                        return "I'm sorry, that request was blocked due to safety settings.";
-                    }
-                }
-                
-                return null;
-            }
+        } else {
+          messageDiv.innerHTML = `
+            <div class="font-semibold text-blue-400 mb-2">👤 You</div>
+            <div>${content}</div>
+          `;
+            messageDiv.innerHTML = `
+                <div class="font-semibold text-blue-400 mb-2">👤 You</div>
+                <div>${content}</div>
+            `;
         }
 
-        // Global initialization: Start the application
-        new AIAssistant()
-    
+        this.messages.appendChild(messageDiv);
+        this.messages.scrollTop = this.messages.scrollHeight;
+      }
+    }
+
+      generateResponse(message) {
+        const lowerMessage = message.toLowerCase();
+        let response;
+
+        if (lowerMessage.includes('hello') || lowerMessage.includes('hi') || lowerMessage.includes('hey')) {
+          response = this.getRandomResponse('greeting');
+        } else if (lowerMessage.includes('proxy') || lowerMessage.includes('connection') || lowerMessage.includes('ssl')) {
+          response = this.getRandomResponse('proxy');
+        } else if (lowerMessage.includes('code') || lowerMessage.includes('debug') || lowerMessage.includes('error') || lowerMessage.includes('javascript') || lowerMessage.includes('html') || lowerMessage.includes('css')) {
+          response = this.getRandomResponse('coding');
+        } else if (lowerMessage.includes('terminal') || lowerMessage.includes('command') || lowerMessage.includes('shell')) {
+          response = this.getRandomResponse('terminal');
+        } else if (lowerMessage.includes('help')) {
+          response = `I can assist you with:
+          
+• **Proxy Configuration**: SSL settings, server selection, troubleshooting
+• **Code Development**: JavaScript, HTML, CSS, Python debugging
+• **Terminal Usage**: Unix commands, file operations, process management
+• **System Administration**: Performance optimization, security settings
+• **General Programming**: Best practices, architecture, problem-solving
+
+What specific area would you like help with?`;
+        } else {
+          // More sophisticated responses based on keywords
+          if (lowerMessage.includes('error') || lowerMessage.includes('bug')) {
+            response = "I'd be happy to help debug that issue! Could you share the specific error message or describe what's not working as expected?";
+          } else if (lowerMessage.includes('performance') || lowerMessage.includes('slow')) {
+            response = "For performance issues, check: 1) Network connectivity, 2) Server location settings, 3) Browser cache, 4) Enable compression in settings. What specific performance problem are you experiencing?";
+          } else if (lowerMessage.includes('security') || lowerMessage.includes('safe')) {
+            response = "Security is a priority! The proxy includes SSL encryption, ad blocking, tracker blocking, and stealth mode. For additional security, enable WebRTC blocking in settings.";
+          } else {
+            response = "That's an interesting question! Could you provide more details so I can give you a more specific answer? I'm here to help with coding, proxy configuration, terminal usage, and general tech support.";
+          }
+        }
+    // --- 4. THE CORE: This function now makes the API call ---
+    async generateResponse(message) {
+        // Show a "typing" indicator immediately
+        this.addMessage('typing...', 'ai');
+        const typingIndicator = document.getElementById('ai-typing-indicator');
+
+        this.addMessage(response, 'ai');
+      }
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${this.GEMINI_MODEL}:generateContent?key=${this.GEMINI_API_KEY}`;
+        
+        const payload = {
+            contents: [
+                {
+                    parts: [{ text: message }],
+                },
+            ],
+            // Optional: You can add system instructions or other configurations here
+        };
+
+      getRandomResponse(category) {
+        const responses = this.responses[category];
+        return responses[Math.floor(Math.random() * responses.length)];
+      }
         try {
             const response = await fetch(url, {
                 method: "POST",
@@ -1883,6 +1910,7 @@ Date:   Fri Dec 14 18:45:00 2024 +0000
                 body: JSON.stringify(payload),
             });
 
+      clearChat() {
             if (!response.ok) {
                 const errorData = await response.json();
                 throw new Error(errorData.error.message || response.statusText);
@@ -1914,9 +1942,11 @@ Date:   Fri Dec 14 18:45:00 2024 +0000
         this.messages.innerHTML = `
           <div class="chat-message ai">
             <div class="font-semibold text-purple-400 mb-2">🤖 AI Assistant</div>
+            <div>Chat cleared! How can I help you today?</div>
             <div>Chat cleared! I'm now powered by the Gemini API. How can I help you today?</div>
           </div>
         `;
+      }
     }
 }
 
@@ -1990,7 +2020,7 @@ Date:   Fri Dec 14 18:45:00 2024 +0000
 
         // Add protocol if missing
         const fullUrl = url.startsWith('http') ? url : `https://${url}`;
-        
+
         this.loadingStatus.textContent = 'Loading...';
         this.loadingStatus.style.color = 'var(--warning-color)';
         this.addressBar.textContent = fullUrl;
@@ -2299,125 +2329,48 @@ Date:   Fri Dec 14 18:45:00 2024 +0000
       });
     }
 
-// Global keyboard shortcuts MUST be defined as a FUNCTION or inside the TabManager
-// to ensure it can access necessary variables.
-// Since you want to use 'tabManager' variable, we'll define this function last.
-
-// -------------------------------------------------------------------
-// 1. TabManager Class (Simplified - removed redundant internal setupKeyboardShortcuts)
-// -------------------------------------------------------------------
-class TabManager {
-  constructor() {
-    this.activeTab = 'proxy';
-    this.initializeTabs();
-    this.switchTab(this.activeTab); 
-  }
-
-  initializeTabs() {
-    const tabButtons = document.querySelectorAll('.tab-button');
-    tabButtons.forEach(button => {
-      button.addEventListener('click', () => {
-        const tabId = button.getAttribute('data-tab');
-        this.switchTab(tabId);
-      });
-    });
-  }
-
-  switchTab(tabId) {
-    // Remove active class from all tabs and contents
-    document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
-    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-
-    // Add active class to selected tab and content
-    const tabButton = document.querySelector(`[data-tab="${tabId}"]`);
-    const tabContent = document.getElementById(`${tabId}-tab`);
-    
-    // Safety check to ensure elements exist before adding class
-    if (tabButton) tabButton.classList.add('active');
-    if (tabContent) tabContent.classList.add('active');
-
-    this.activeTab = tabId;
-
-    // Initialize specific tab features
-    if (tabId === 'code' && typeof editor !== 'undefined') {
-      // Use requestAnimationFrame for better timing when dealing with UI libraries
-      requestAnimationFrame(() => {
-          setTimeout(() => editor.resize(), 10);
+    // Global keyboard shortcuts
+    function setupGlobalShortcuts() {
+      document.addEventListener('keydown', (e) => {
+        if (e.ctrlKey) {
+          switch(e.key) {
+            case 'k':
+              e.preventDefault();
+              document.getElementById('proxyUrl').focus();
+              break;
+            case 'Enter':
+              if (tabManager.activeTab === 'code') {
+                e.preventDefault();
+                document.getElementById('runCode').click();
+              }
+              break;
+            case 's':
+              if (tabManager.activeTab === 'code') {
+                e.preventDefault();
+                document.getElementById('saveCode').click();
+              }
+              break;
+          }
+        }
       });
     }
-  }
-  
-  // NOTE: setupKeyboardShortcuts() method is REMOVED from the class
-  // because we are putting the tab switching logic into the global function below.
-}
 
-// -------------------------------------------------------------------
-// 2. Initialization of Global Variables
-// -------------------------------------------------------------------
-// NOTE: These components must be defined BEFORE the functions that use them.
-const tabManager = new TabManager();
-// Assume other managers are defined here for completeness
-const terminal = typeof EnhancedTerminal !== 'undefined' ? new EnhancedTerminal() : null;
-const aiAssistant = typeof AIAssistant !== 'undefined' ? new AIAssistant() : null;
-const proxyManager = typeof ProxyManager !== 'undefined' ? new ProxyManager() : null;
-const settingsManager = typeof SettingsManager !== 'undefined' ? new SettingsManager() : null;
+    // Initialize all components
+    const tabManager = new TabManager();
+    const terminal = new EnhancedTerminal();
+    const aiAssistant = new AIAssistant();
+    const proxyManager = new ProxyManager();
+    const settingsManager = new SettingsManager();
 
+    setupCodeEditor();
+    setupGlobalShortcuts();
 
-// -------------------------------------------------------------------
-// 3. Global Shortcut Setup (MUST be defined AFTER tabManager)
-// -------------------------------------------------------------------
-function setupGlobalShortcuts() {
-  document.addEventListener('keydown', (e) => {
-    if (e.ctrlKey) {
-      // 1. Tab Switching Shortcuts (Ctrl + 1-6)
-      const tabMap = {
-        '1': 'proxy', '2': 'code', '3': 'terminal',
-        '4': 'ai', '5': 'settings', '6': 'help'
-      };
+    // Update stats periodically
+    setInterval(updateSystemStats, 5000);
+    updateSystemStats();
 
-      if (tabMap[e.key]) {
-        e.preventDefault();
-        tabManager.switchTab(tabMap[e.key]);
-        return; // Stop here if it's a tab switch
-      }
-
-      // 2. Tab-Specific Shortcuts (Ctrl + K, Ctrl + Enter, Ctrl + S)
-      switch(e.key) {
-        case 'k': // Ctrl + K (Focus Proxy URL)
-          e.preventDefault();
-          document.getElementById('proxyUrl').focus();
-          break;
-        case 'Enter': // Ctrl + Enter (Run Code)
-          if (tabManager.activeTab === 'code') {
-            e.preventDefault();
-            document.getElementById('runCode').click();
-          }
-          break;
-        case 's': // Ctrl + S (Save Code)
-          if (tabManager.activeTab === 'code') {
-            e.preventDefault();
-            document.getElementById('saveCode').click();
-          }
-          break;
-      }
-    }
-  });
-}
-
-
-// -------------------------------------------------------------------
-// 4. Final Execution Block
-// -------------------------------------------------------------------
-// NOTE: Now the functions are called AFTER everything is defined.
-setupCodeEditor(); // Assume this function is defined elsewhere
-setupGlobalShortcuts(); 
-
-// Start background processes
-setInterval(updateSystemStats, 5000); // Assume this function is defined elsewhere
-updateSystemStats();
-
-console.log('🌌 Emulation\'s Proxy Professional v2.0 - Fully Initialized!');
-console.log('Features: Advanced Proxy • Code Editor • Terminal • AI Assistant • Professional UI');
+    console.log('🌌 Emulation\'s Proxy Professional v2.0 - Fully Initialized!');
+    console.log('Features: Advanced Proxy • Code Editor • Terminal • AI Assistant • Professional UI');
   </script>
 </body>
 </html>
