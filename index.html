@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -402,15 +403,15 @@
         padding: 8px 12px;
         font-size: 14px;
       }
-
+      
       .tab-content {
         padding: 16px;
       }
-
+      
       .terminal {
         height: 300px;
       }
-
+      
       .code-editor-container {
         height: 400px;
       }
@@ -483,7 +484,7 @@
         </div>
 
         <!-- Tab Contents -->
-
+        
         <!-- Proxy Tab -->
         <div class="tab-content active" id="proxy-tab">
           <div class="space-y-6">
@@ -1267,7 +1268,7 @@ document.addEventListener('click', () => {
   }
 }, { once: true });
 
-
+      
       // Language change handler
       document.getElementById('editorLanguage').addEventListener('change', (e) => {
         const modeMap = {
@@ -1711,15 +1712,6 @@ Date:   Fri Dec 14 18:45:00 2024 +0000
     // AI Assistant
     class AIAssistant {
       constructor() {
-   // AI Assistant
-class AIAssistant {
-    constructor() {
-        // --- 1. PLACE YOUR API KEY HERE ---
-        // ⚠️ REMEMBER: This is highly insecure for production client-side code! 
-        // Use a secure backend proxy or Firebase AI Logic for deployment.
-        this.GEMINI_API_KEY = "YOUR_GEMINI_API_KEY_HERE"; 
-        this.GEMINI_MODEL = "gemini-2.5-flash"; // A fast and capable model
-
         this.messages = document.getElementById('chatMessages');
         this.input = document.getElementById('chatInput');
         this.sendButton = document.getElementById('sendChat');
@@ -1748,38 +1740,24 @@ class AIAssistant {
           ]
         };
 
-        
-        // --- 2. REMOVE the hardcoded 'this.responses' object ---
-        // It's no longer needed as Gemini will generate responses.
-        
         this.setupEventListeners();
       }
-    }
 
       setupEventListeners() {
-    setupEventListeners() {
         this.sendButton.addEventListener('click', () => this.sendMessage());
         this.input.addEventListener('keydown', (e) => {
           if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
             this.sendMessage();
           }
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                this.sendMessage();
-            }
         });
 
         document.getElementById('clearChat').addEventListener('click', () => {
           this.clearChat();
-            this.clearChat();
         });
       }
-    }
 
       sendMessage() {
-    // This method is now async because it needs to wait for the API call
-    async sendMessage() {
         const message = this.input.value.trim();
         if (!message || this.isTyping) return;
 
@@ -1787,64 +1765,32 @@ class AIAssistant {
         this.input.value = '';
 
         // Simulate AI thinking
-        // Indicate AI is typing
         this.isTyping = true;
         setTimeout(() => {
           this.generateResponse(message);
           this.isTyping = false;
         }, 1000 + Math.random() * 2000);
       }
-        this.sendButton.disabled = true; // Disable button while typing
-
-        try {
-            // --- 3. CALL THE NEW ASYNC GENERATERESPONSE METHOD ---
-            await this.generateResponse(message);
-        } catch (error) {
-            console.error("Chat Error:", error);
-            this.addMessage("Sorry, I ran into an error getting a response. Please check the console for details.", 'ai');
-        } finally {
-            // Restore state after receiving a response (or error)
-            this.isTyping = false;
-            this.sendButton.disabled = false;
-        }
-    }
 
       addMessage(content, sender) {
-    addMessage(content, sender) {
-        // (Keep your existing addMessage logic. It handles the display.)
         const messageDiv = document.createElement('div');
         messageDiv.className = `chat-message ${sender}`;
-
+        
         if (sender === 'ai') {
           messageDiv.innerHTML = `
             <div class="font-semibold text-purple-400 mb-2">🤖 AI Assistant</div>
             <div>${content}</div>
           `;
-            // We use 'assistant' as a temporary placeholder while waiting for the real response
-            if (content === 'typing...') {
-                messageDiv.id = 'ai-typing-indicator'; // Add an ID to easily find and update it
-                messageDiv.innerHTML = `<div class="font-semibold text-purple-400 mb-2">🤖 AI Assistant</div><div>${content}</div>`;
-            } else {
-                messageDiv.innerHTML = `
-                    <div class="font-semibold text-purple-400 mb-2">🤖 AI Assistant</div>
-                    <div>${content}</div>
-                `;
-            }
         } else {
           messageDiv.innerHTML = `
             <div class="font-semibold text-blue-400 mb-2">👤 You</div>
             <div>${content}</div>
           `;
-            messageDiv.innerHTML = `
-                <div class="font-semibold text-blue-400 mb-2">👤 You</div>
-                <div>${content}</div>
-            `;
         }
 
         this.messages.appendChild(messageDiv);
         this.messages.scrollTop = this.messages.scrollHeight;
       }
-    }
 
       generateResponse(message) {
         const lowerMessage = message.toLowerCase();
@@ -1880,75 +1826,24 @@ What specific area would you like help with?`;
             response = "That's an interesting question! Could you provide more details so I can give you a more specific answer? I'm here to help with coding, proxy configuration, terminal usage, and general tech support.";
           }
         }
-    // --- 4. THE CORE: This function now makes the API call ---
-    async generateResponse(message) {
-        // Show a "typing" indicator immediately
-        this.addMessage('typing...', 'ai');
-        const typingIndicator = document.getElementById('ai-typing-indicator');
 
         this.addMessage(response, 'ai');
       }
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/${this.GEMINI_MODEL}:generateContent?key=${this.GEMINI_API_KEY}`;
-        
-        const payload = {
-            contents: [
-                {
-                    parts: [{ text: message }],
-                },
-            ],
-            // Optional: You can add system instructions or other configurations here
-        };
 
       getRandomResponse(category) {
         const responses = this.responses[category];
         return responses[Math.floor(Math.random() * responses.length)];
       }
-        try {
-            const response = await fetch(url, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload),
-            });
 
       clearChat() {
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error.message || response.statusText);
-            }
-
-            const data = await response.json();
-            
-            // Extract the generated text
-            const aiText = data.candidates?.[0]?.content?.parts?.[0]?.text || "I was unable to generate a response for that.";
-            
-            // Update the 'typing...' indicator with the final response
-            if (typingIndicator) {
-                typingIndicator.remove(); // Remove the old indicator
-            }
-            this.addMessage(aiText, 'ai'); // Add the final message
-
-        } catch (error) {
-            // Remove the typing indicator if the API call fails
-            if (typingIndicator) {
-                typingIndicator.remove();
-            }
-            throw error; // Re-throw to be caught by sendMessage
-        }
-    }
-    
-    // --- 5. REMOVE the getRandomResponse method as it is no longer needed ---
-
-    clearChat() {
         this.messages.innerHTML = `
           <div class="chat-message ai">
             <div class="font-semibold text-purple-400 mb-2">🤖 AI Assistant</div>
             <div>Chat cleared! How can I help you today?</div>
-            <div>Chat cleared! I'm now powered by the Gemini API. How can I help you today?</div>
           </div>
         `;
       }
     }
-}
 
     // Proxy Manager
     class ProxyManager {
@@ -2020,7 +1915,7 @@ What specific area would you like help with?`;
 
         // Add protocol if missing
         const fullUrl = url.startsWith('http') ? url : `https://${url}`;
-
+        
         this.loadingStatus.textContent = 'Loading...';
         this.loadingStatus.style.color = 'var(--warning-color)';
         this.addressBar.textContent = fullUrl;
