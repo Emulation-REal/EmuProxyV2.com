@@ -1709,141 +1709,120 @@ Date:   Fri Dec 14 18:45:00 2024 +0000
       }
     }
 
-    // AI Assistant
-    class AIAssistant {
-      constructor() {
-        this.messages = document.getElementById('chatMessages');
-        this.input = document.getElementById('chatInput');
-        this.sendButton = document.getElementById('sendChat');
-        this.isTyping = false;
+   // Open in xAI Artifact: Your Upgraded AI Assistant Code
 
-        this.responses = {
-          greeting: [
-            "Hello! I'm here to help you with any coding or technical questions.",
-            "Hi there! What can I assist you with today?",
-            "Welcome! Feel free to ask me about programming, web development, or system administration."
-          ],
-          proxy: [
-            "For proxy issues, check your SSL settings and ensure the target URL is accessible. The proxy supports HTTPS and has built-in ad blocking.",
-            "Common proxy problems include CORS issues and SSL certificate validation. Try enabling stealth mode in settings.",
-            "The proxy uses advanced routing through multiple servers. Check the server location setting for optimal performance."
-          ],
-          coding: [
-            "I can help debug your code! Share the error message and I'll provide a solution.",
-            "For better code organization, consider using modules and proper error handling.",
-            "Best practices include proper variable naming, commenting, and following language conventions."
-          ],
-          terminal: [
-            "The terminal supports most standard Unix commands. Try 'help' for a full list.",
-            "For file operations, use ls, cd, mkdir, rm, cp, and mv. For processes, use ps, kill, and top.",
-            "Advanced features include command history (↑/↓), tab completion, and keyboard shortcuts."
-          ]
-        };
+class AIAssistant {
+  constructor() {
+    this.messages = document.getElementById('chatMessages');
+    this.input = document.getElementById('chatInput');
+    this.sendButton = document.getElementById('sendChat');
+    this.isTyping = false;
+    this.chatHistory = [];
+    this.apiKey = 'AIzaSyB5FoFx0DT86OoU0TzEiDkfJbT_byqrzWE'; // Paste your Google Gemini API key here. Get one from https://aistudio.google.com/
 
-        this.setupEventListeners();
+    this.setupEventListeners();
+  }
+
+  setupEventListeners() {
+    this.sendButton.addEventListener('click', () => this.sendMessage());
+    this.input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        this.sendMessage();
       }
+    });
 
-      setupEventListeners() {
-        this.sendButton.addEventListener('click', () => this.sendMessage());
-        this.input.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            this.sendMessage();
-          }
-        });
+    document.getElementById('clearChat').addEventListener('click', () => {
+      this.clearChat();
+    });
+  }
 
-        document.getElementById('clearChat').addEventListener('click', () => {
-          this.clearChat();
-        });
-      }
+  sendMessage() {
+    const message = this.input.value.trim();
+    if (!message || this.isTyping) return;
 
-      sendMessage() {
-        const message = this.input.value.trim();
-        if (!message || this.isTyping) return;
+    this.addMessage(message, 'user');
+    this.chatHistory.push({ role: 'user', parts: [{ text: message }] });
+    this.input.value = '';
+    this.isTyping = true;
 
-        this.addMessage(message, 'user');
-        this.input.value = '';
+    this.generateResponse().then(() => {
+      this.isTyping = false;
+    }).catch(error => {
+      console.error('AI error:', error);
+      this.addMessage('Oops, something fucked up with the AI. Check your API key or internet.', 'ai');
+      this.isTyping = false;
+    });
+  }
 
-        // Simulate AI thinking
-        this.isTyping = true;
-        setTimeout(() => {
-          this.generateResponse(message);
-          this.isTyping = false;
-        }, 1000 + Math.random() * 2000);
-      }
-
-      addMessage(content, sender) {
-        const messageDiv = document.createElement('div');
-        messageDiv.className = `chat-message ${sender}`;
-        
-        if (sender === 'ai') {
-          messageDiv.innerHTML = `
-            <div class="font-semibold text-purple-400 mb-2">🤖 AI Assistant</div>
-            <div>${content}</div>
-          `;
-        } else {
-          messageDiv.innerHTML = `
-            <div class="font-semibold text-blue-400 mb-2">👤 You</div>
-            <div>${content}</div>
-          `;
-        }
-
-        this.messages.appendChild(messageDiv);
-        this.messages.scrollTop = this.messages.scrollHeight;
-      }
-
-      generateResponse(message) {
-        const lowerMessage = message.toLowerCase();
-        let response;
-
-        if (lowerMessage.includes('hello') || lowerMessage.includes('hi') || lowerMessage.includes('hey')) {
-          response = this.getRandomResponse('greeting');
-        } else if (lowerMessage.includes('proxy') || lowerMessage.includes('connection') || lowerMessage.includes('ssl')) {
-          response = this.getRandomResponse('proxy');
-        } else if (lowerMessage.includes('code') || lowerMessage.includes('debug') || lowerMessage.includes('error') || lowerMessage.includes('javascript') || lowerMessage.includes('html') || lowerMessage.includes('css')) {
-          response = this.getRandomResponse('coding');
-        } else if (lowerMessage.includes('terminal') || lowerMessage.includes('command') || lowerMessage.includes('shell')) {
-          response = this.getRandomResponse('terminal');
-        } else if (lowerMessage.includes('help')) {
-          response = `I can assist you with:
-          
-• **Proxy Configuration**: SSL settings, server selection, troubleshooting
-• **Code Development**: JavaScript, HTML, CSS, Python debugging
-• **Terminal Usage**: Unix commands, file operations, process management
-• **System Administration**: Performance optimization, security settings
-• **General Programming**: Best practices, architecture, problem-solving
-
-What specific area would you like help with?`;
-        } else {
-          // More sophisticated responses based on keywords
-          if (lowerMessage.includes('error') || lowerMessage.includes('bug')) {
-            response = "I'd be happy to help debug that issue! Could you share the specific error message or describe what's not working as expected?";
-          } else if (lowerMessage.includes('performance') || lowerMessage.includes('slow')) {
-            response = "For performance issues, check: 1) Network connectivity, 2) Server location settings, 3) Browser cache, 4) Enable compression in settings. What specific performance problem are you experiencing?";
-          } else if (lowerMessage.includes('security') || lowerMessage.includes('safe')) {
-            response = "Security is a priority! The proxy includes SSL encryption, ad blocking, tracker blocking, and stealth mode. For additional security, enable WebRTC blocking in settings.";
-          } else {
-            response = "That's an interesting question! Could you provide more details so I can give you a more specific answer? I'm here to help with coding, proxy configuration, terminal usage, and general tech support.";
-          }
-        }
-
-        this.addMessage(response, 'ai');
-      }
-
-      getRandomResponse(category) {
-        const responses = this.responses[category];
-        return responses[Math.floor(Math.random() * responses.length)];
-      }
-
-      clearChat() {
-        this.messages.innerHTML = `
-          <div class="chat-message ai">
-            <div class="font-semibold text-purple-400 mb-2">🤖 AI Assistant</div>
-            <div>Chat cleared! How can I help you today?</div>
-          </div>
-        `;
-      }
+  addMessage(content, sender) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `chat-message ${sender}`;
+    
+    if (sender === 'ai') {
+      messageDiv.innerHTML = `
+        <div class="font-semibold text-purple-400 mb-2">🤖 AI Assistant</div>
+        <div>${content}</div>
+      `;
+    } else {
+      messageDiv.innerHTML = `
+        <div class="font-semibold text-blue-400 mb-2">👤 You</div>
+        <div>${content}</div>
+      `;
     }
+
+    this.messages.appendChild(messageDiv);
+    this.messages.scrollTop = this.messages.scrollHeight;
+  }
+
+  async generateResponse() {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${this.apiKey}`;
+    
+    const body = {
+      contents: this.chatHistory,
+      systemInstruction: {
+        parts: [{
+          text: "You are a helpful AI assistant specialized in coding, web development, proxy configurations, terminal commands, and system administration. Provide detailed, practical advice. Keep responses concise but informative. Use humor sparingly if it fits."
+        }]
+      },
+      generationConfig: {
+        temperature: 0.7,
+        topK: 40,
+        topP: 0.95,
+        maxOutputTokens: 1024,
+      }
+    };
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(body)
+    });
+
+    if (!response.ok) {
+      throw new Error(`API request failed: ${response.status}`);
+    }
+
+    const data = await response.json();
+    const aiResponse = data.candidates[0].content.parts[0].text.trim();
+    
+    this.addMessage(aiResponse, 'ai');
+    this.chatHistory.push({ role: 'model', parts: [{ text: aiResponse }] });
+  }
+
+  clearChat() {
+    this.chatHistory = [];
+    this.messages.innerHTML = `
+      <div class="chat-message ai">
+        <div class="font-semibold text-purple-400 mb-2">🤖 AI Assistant</div>
+        <div>Chat cleared! How can I help you today?</div>
+      </div>
+    `;
+    this.chatHistory.push({ role: 'model', parts: [{ text: 'Chat cleared! How can I help you today?' }] });
+  }
+}
 
     // Proxy Manager
     class ProxyManager {
