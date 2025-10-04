@@ -1709,7 +1709,7 @@ Date:   Fri Dec 14 18:45:00 2024 +0000
       }
     }
 
-   // Open in xAI Artifact: Your Upgraded AI Assistant Code
+// Open in xAI Artifact: Your Upgraded AI Assistant Code – Now with Gemini 2.5 Flash
 
 class AIAssistant {
   constructor() {
@@ -1750,7 +1750,7 @@ class AIAssistant {
       this.isTyping = false;
     }).catch(error => {
       console.error('AI error:', error);
-      this.addMessage('Oops, something fucked up with the AI. Check your API key or internet.', 'ai');
+      this.addMessage('Shit, the AI call bombed. Double-check your API key, net connection, or if Google\'s servers are taking a nap.', 'ai');
       this.isTyping = false;
     });
   }
@@ -1776,11 +1776,11 @@ class AIAssistant {
   }
 
   async generateResponse() {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${this.apiKey}`;
+    const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
     
     const body = {
       contents: this.chatHistory,
-      systemInstruction: {
+      system_instruction: {
         parts: [{
           text: "You are a helpful AI assistant specialized in coding, web development, proxy configurations, terminal commands, and system administration. Provide detailed, practical advice. Keep responses concise but informative. Use humor sparingly if it fits."
         }]
@@ -1796,7 +1796,8 @@ class AIAssistant {
     const response = await fetch(url, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'x-goog-api-key': this.apiKey
       },
       body: JSON.stringify(body)
     });
